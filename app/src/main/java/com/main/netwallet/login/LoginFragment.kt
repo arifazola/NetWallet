@@ -12,6 +12,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.main.netwallet.R
 import com.main.netwallet.database.NetWalletDatabase
 import com.main.netwallet.databinding.FragmentLoginBinding
@@ -50,6 +51,8 @@ class LoginFragment : Fragment() {
         val isLoggedIn : Boolean = sharedPreferences.getBoolean("is_loggedin", false)
         val binding = DataBindingUtil.inflate<FragmentLoginBinding>(inflater, R.layout.fragment_login, container, false)
         if(!isLoggedIn) {
+            val bottomNav : BottomNavigationView? = activity?.findViewById(R.id.bn_main)
+            bottomNav?.visibility
             val application = requireNotNull(this.activity).application
             val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
             val viewModelProvider = LoginFragmentViewModelProvider(dataSource, application)
