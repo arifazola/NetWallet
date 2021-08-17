@@ -3,6 +3,7 @@ package com.main.netwallet.login
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -32,7 +33,9 @@ class LoginFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     val PREFS_KEY = "login preference"
+    val PREF_KEY_EMAIL = "email preference"
     lateinit var sharedPreferences : SharedPreferences
+    lateinit var sharedPreferencesEmail : SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +51,7 @@ class LoginFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         sharedPreferences = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
+        sharedPreferencesEmail = requireActivity().getSharedPreferences(PREF_KEY_EMAIL,Context.MODE_PRIVATE)
         val isLoggedIn : Boolean = sharedPreferences.getBoolean("is_loggedin", false)
         val binding = DataBindingUtil.inflate<FragmentLoginBinding>(inflater, R.layout.fragment_login, container, false)
         if(!isLoggedIn) {
@@ -63,30 +67,43 @@ class LoginFragment : Fragment() {
             binding.btLogin.setOnClickListener {
                 val email = binding.etEmailLogin.text.toString()
                 val password = binding.etPasswordLogin.text.toString()
-                viewModel.loginCheck(email, password)
+                if(email.isBlank() || password.isBlank()){
+                    Toast.makeText(context, "Email and/or password cannot be empty", Toast.LENGTH_LONG).show()
+                }else {
+                    viewModel.loginCheck(email, password)
 
-                viewModel.doneNavigating.observe(viewLifecycleOwner, Observer {
-                    if (it == true) {
+                    viewModel.doneNavigating.observe(viewLifecycleOwner, Observer {
+                        if (it == true) {
                         findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToInitialSettingFragment())
-                        viewModel.doneNavigating()
-                    }
-                })
+//                            findNavController().navigate(R.id.initialSettingFragment)
+                            viewModel.doneNavigating()
+                        }
+                    })
 
-                viewModel.doneShowingToast.observe(viewLifecycleOwner, Observer {
-                    if (it == true) {
-                        Toast.makeText(context, "Email or password is incorrect", Toast.LENGTH_LONG)
-                            .show()
-                        viewModel.doneShowingToast()
-                    }
-                })
+                    viewModel.doneShowingToast.observe(viewLifecycleOwner, Observer {
+                        if (it == true) {
+                            Toast.makeText(
+                                context,
+                                "Email or password is incorrect",
+                                Toast.LENGTH_LONG
+                            )
+                                .show()
+                            viewModel.doneShowingToast()
+                        }
+                    })
 
-                savePreferences()
+                    savePreferences()
+                    saveEmailPreferences(email)
+
+                }
             }
 
             binding.txtRegister.setOnClickListener {
+//                findNavController().navigate(R.id.registerFragment)
                 findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToRegisterFragment())
             }
         }else{
+//            findNavController().navigate(R.id.initialSettingFragment)
             findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToInitialSettingFragment())
         }
         return binding.root
@@ -96,6 +113,12 @@ class LoginFragment : Fragment() {
     private fun savePreferences(){
         val editor : SharedPreferences.Editor = sharedPreferences.edit()
         editor.putBoolean("is_loggedin", true)
+        editor.apply()
+    }
+
+    private fun saveEmailPreferences(email: String){
+        val editor : SharedPreferences.Editor = sharedPreferencesEmail.edit()
+        editor.putString("email_preference", email)
         editor.apply()
     }
 

@@ -27,5 +27,13 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="input_value">Input Value of Transaction</string>
+    <string name="detail_transaction">Detail Transaction (Food, Etc)</string>
+    <string name="input_transaction">Input Your Transaction</string>
+    
+    <string-array name="transaction_type">
+        <item>Income</item>
+        <item>Expenses</item>
+    </string-array>
 </resources>
 

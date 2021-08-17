@@ -19,6 +19,9 @@ import com.main.netwallet.R
 import com.main.netwallet.database.NetWalletDatabase
 import com.main.netwallet.databinding.FragmentInitialSettingBinding
 import org.w3c.dom.Text
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -34,8 +37,8 @@ class InitialSettingFragment : Fragment() , AdapterView.OnItemSelectedListener{
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    val PREFS_KEY = "initial preference"
-    lateinit var sharedPreferences: SharedPreferences
+    val PREFS_KEY_EMAIL = "email preference"
+    lateinit var sharedPreferencesEmail : SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +46,20 @@ class InitialSettingFragment : Fragment() , AdapterView.OnItemSelectedListener{
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+
+//        val application = requireNotNull(this.activity).application
+//        val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
+//        val viewModelProvider = InitialSettingViewModelFactory(dataSource, application)
+//        val viewModel =
+//            ViewModelProvider(this, viewModelProvider).get(InitialSetttingViewModel::class.java)
+//        sharedPreferencesEmail = requireActivity().getSharedPreferences(PREFS_KEY_EMAIL, Context.MODE_PRIVATE)
+//        val getEmailPreferences : String? = sharedPreferencesEmail.getString("email_preference", null)
+//        viewModel.getHasInitialized(getEmailPreferences!!)
+//        viewModel.doneNavigating.observe(viewLifecycleOwner, Observer {
+//            if(it == true){
+//                findNavController().navigate(InitialSettingFragmentDirections.actionInitialSettingFragmentToHomeFragment())
+//            }
+//        })
     }
 
     override fun onCreateView(
@@ -50,17 +67,28 @@ class InitialSettingFragment : Fragment() , AdapterView.OnItemSelectedListener{
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        sharedPreferences = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
-        val isSetup : Boolean = sharedPreferences.getBoolean("is_setup", false)
-        val binding = DataBindingUtil.inflate<FragmentInitialSettingBinding>(inflater,R.layout.fragment_initial_setting,container,false)
-        if(!isSetup) {
+
             val application = requireNotNull(this.activity).application
             val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
             val viewModelProvider = InitialSettingViewModelFactory(dataSource, application)
             val viewModel =
                 ViewModelProvider(this, viewModelProvider).get(InitialSetttingViewModel::class.java)
-            binding.initial = viewModel
+//            binding.initial = viewModel
+            sharedPreferencesEmail = requireActivity().getSharedPreferences(PREFS_KEY_EMAIL, Context.MODE_PRIVATE)
+            val getEmailPreferences : String? = sharedPreferencesEmail.getString("email_preference", null)
 
+        //Checking if hasInitialized
+        viewModel.getHasInitialized(getEmailPreferences!!)
+        viewModel.doneNavigating.observe(viewLifecycleOwner, Observer {
+            if(it == true){
+//                findNavController().navigate(InitialSettingFragmentDirections.actionInitialSettingFragmentToHomeFragment())
+                findNavController().navigate(R.id.homeFragment)
+                viewModel.doneNavigating()
+            }
+        })
+
+            val binding = DataBindingUtil.inflate<FragmentInitialSettingBinding>(inflater,R.layout.fragment_initial_setting,container,false)
+            binding.initial = viewModel
             val accountTypeSpinner: Spinner = binding.spinnerAccountType
 
             ArrayAdapter.createFromResource(
@@ -95,30 +123,36 @@ class InitialSettingFragment : Fragment() , AdapterView.OnItemSelectedListener{
                 val accountTypeVal = accountTypeSpinner.selectedItem.toString()
                 val currencyVal = currencySpinner.selectedItem.toString()
                 val balance = binding.etInputBalance.text.toString()
+                val date : String = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
 
-                viewModel.insertCurrency(currencyVal)
-                viewModel.insertWalletDetails(accountTypeVal, balance.toLong(), currencyVal)
-                viewModel.doneNavigating.observe(viewLifecycleOwner, Observer {
-                    if (it == true) {
-                        findNavController().navigate(InitialSettingFragmentDirections.actionInitialSettingFragmentToHomeFragment())
-                    }
-                })
+                if (balance.isBlank()) {
+                    Toast.makeText(context, "Please fill the empty form", Toast.LENGTH_LONG).show()
+                } else {
 
-                savePreferences()
+                    viewModel.insertCurrency(currencyVal, true, getEmailPreferences.toString())
+                    viewModel.firstTransaction(
+                        getEmailPreferences.toString(),
+                        balance.toLong(),
+                        "Income",
+                        "Account Opening",
+                        accountTypeVal,
+                        currencyVal,
+                        date
+                    )
+//                viewModel.updateHasInitialized(true)
+                    viewModel.doneNavigating.observe(viewLifecycleOwner, Observer {
+                        if (it == true) {
+                            findNavController().navigate(InitialSettingFragmentDirections.actionInitialSettingFragmentToHomeFragment())
+                            viewModel.doneNavigating()
+                        }
+                    })
 
+                }
+                Log.e("email", getEmailPreferences.toString())
             }
-        }else{
-            findNavController().navigate(InitialSettingFragmentDirections.actionInitialSettingFragmentToHomeFragment())
-        }
-
         return binding.root
     }
 
-    private fun savePreferences(){
-        val editor : SharedPreferences.Editor = sharedPreferences.edit()
-        editor.putBoolean("is_setup", true)
-        editor.apply()
-    }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         val selected = parent?.getItemAtPosition(position)

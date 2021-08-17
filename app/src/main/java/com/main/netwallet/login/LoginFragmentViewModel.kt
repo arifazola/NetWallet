@@ -20,6 +20,10 @@ class LoginFragmentViewModel(datasource : NetWalletDatabaseDao, application: App
     val doneShowingToast : LiveData<Boolean>
         get() = _doneShowingToast
 
+    private val _getEmail = MutableLiveData<String>()
+    val getEmail : LiveData<String>
+        get() = _getEmail
+
     fun loginCheck(email: String, password: String){
         viewModelScope.launch {
             val checkLogin = database.loginCheck(email, password)

@@ -1,5 +1,7 @@
 package com.main.netwallet.register
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -30,6 +32,8 @@ class RegisterFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+    private val PREFS_KEY_EMAIL = "email preference"
+    lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +48,7 @@ class RegisterFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
+        sharedPreferences = requireActivity().getSharedPreferences(PREFS_KEY_EMAIL, Context.MODE_PRIVATE)
         val binding = DataBindingUtil.inflate<FragmentRegisterBinding>(inflater,R.layout.fragment_register, container, false)
         val application = requireNotNull(this.activity).application
         val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
@@ -58,24 +63,40 @@ class RegisterFragment : Fragment() {
             val firstName = binding.etFirstNameRegister.text.toString()
             val lastName = binding.etLastNameRegister.text.toString()
 
-            viewModel.onRegister(email, password, firstName, lastName)
+            if(email.isBlank() || password.isBlank() || firstName.isBlank() || lastName.isBlank()){
+                Toast.makeText(context, "You need to fill all the data required", Toast.LENGTH_LONG).show()
+            }else {
 
-            viewModel.doneShowingToast.observe(viewLifecycleOwner, Observer {
-                if(it == true){
-                    Toast.makeText(context, "Email has already been registered", Toast.LENGTH_LONG).show()
-                    viewModel.doneShowingToast()
-                }
-            })
+                viewModel.onRegister(email, password, firstName, lastName)
 
-            viewModel.doneNavigating.observe(viewLifecycleOwner, Observer {
-                if(it == true){
-                    findNavController().navigate(RegisterFragmentDirections.actionRegisterFragmentToInitialSettingFragment())
-                    viewModel.doneNavigating()
-                }
-            })
+                viewModel.doneShowingToast.observe(viewLifecycleOwner, Observer {
+                    if (it == true) {
+                        Toast.makeText(
+                            context,
+                            "Email has already been registered",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        viewModel.doneShowingToast()
+                    }
+                })
 
+                viewModel.doneNavigating.observe(viewLifecycleOwner, Observer {
+                    if (it == true) {
+                        findNavController().navigate(RegisterFragmentDirections.actionRegisterFragmentToInitialSettingFragment())
+                        viewModel.doneNavigating()
+                    }
+                })
+
+                setEmailSharedPreference(email)
+            }
         }
         return binding.root
+    }
+
+    private fun setEmailSharedPreference(email: String){
+        val editor : SharedPreferences.Editor = sharedPreferences.edit()
+        editor.putString("email_preference", email)
+        editor.apply()
     }
 
 

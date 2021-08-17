@@ -27,8 +27,10 @@ class HomeFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    private val PREFS_KEY = "login preference"
-    lateinit var sharedPreferences: SharedPreferences
+//    private val PREFS_KEY = "login preference"
+//    private val PREFS_KEY_EMAIL = "email preference"
+//    lateinit var sharedPreferences: SharedPreferences
+//    lateinit var emailSharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,22 +45,31 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        sharedPreferences = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
+//        sharedPreferences = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
+//        emailSharedPreferences = requireActivity().getSharedPreferences(PREFS_KEY_EMAIL, Context.MODE_PRIVATE)
         val binding = DataBindingUtil.inflate<FragmentHomeBinding>(inflater, R.layout.fragment_home, container, false)
 
-        binding.btnLogout.setOnClickListener {
-            logout()
-            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToLoginFragment())
-        }
+//        binding.btnLogout.setOnClickListener {
+//            logout()
+//            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToLoginFragment())
+//        }
+
+//        binding.button2.setOnClickListener {
+//            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToAddTransactionFragment2())
+//        }
         return binding.root
     }
 
-    private fun logout(){
-//        sharedPreferences = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
-        val editor : SharedPreferences.Editor = sharedPreferences.edit()
-        editor.clear()
-        editor.apply()
-    }
+//    private fun logout(){
+////        sharedPreferences = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
+//        val editor : SharedPreferences.Editor = sharedPreferences.edit()
+//        editor.clear()
+//        editor.apply()
+//
+//        val editor2 : SharedPreferences.Editor = emailSharedPreferences.edit()
+//        editor2.clear()
+//        editor2.apply()
+//    }
 
 
 }
