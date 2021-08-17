@@ -30,7 +30,10 @@
     <string name="input_value">Input Value of Transaction</string>
     <string name="detail_transaction">Detail Transaction (Food, Etc)</string>
     <string name="input_transaction">Input Your Transaction</string>
-    
+    <string name="account_summary">Account Summary</string>
+    <string name="income">Income</string>
+    <string name="expenses">Expenses</string>
+
     <string-array name="transaction_type">
         <item>Income</item>
         <item>Expenses</item>

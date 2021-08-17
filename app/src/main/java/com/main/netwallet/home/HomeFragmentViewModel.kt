@@ -14,11 +14,8 @@ class HomeFragmentViewModel(dataSource: NetWalletDatabaseDao, application: Appli
 
     val database = dataSource
 
+    val transaction = database.getTransaction()
 
-//    fun getSumTransaction(){
-//        viewModelScope.launch {
-//            val sum = database.sumTransaction()
-//            Log.e("SumTransaction", sum.toString())
-//        }
-//    }
+    val totalTransaction = database.sumTransaction()
+
 }

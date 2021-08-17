@@ -9,9 +9,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.main.netwallet.R
+import com.main.netwallet.database.NetWalletDatabase
 import com.main.netwallet.databinding.FragmentHomeBinding
+import kotlin.math.log
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -48,6 +52,22 @@ class HomeFragment : Fragment() {
 //        sharedPreferences = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
 //        emailSharedPreferences = requireActivity().getSharedPreferences(PREFS_KEY_EMAIL, Context.MODE_PRIVATE)
         val binding = DataBindingUtil.inflate<FragmentHomeBinding>(inflater, R.layout.fragment_home, container, false)
+        val application = requireNotNull(this.activity).application
+        val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
+        val viewModelFactory = HomeFragmentViewModelFactory(dataSource, application)
+        val viewModel = ViewModelProvider(this, viewModelFactory).get(HomeFragmentViewModel::class.java)
+        val tvIncome = binding.tvIncome
+        val tvExpenses = binding.tvExpenses
+
+        viewModel.totalTransaction.observe(viewLifecycleOwner, Observer { list ->
+            list?.let {
+
+//                for(i in 0.. list.size-1){
+                    tvIncome.text = list.get(1).value.toString()
+                    tvExpenses.text = list.get(0).value.toString()
+//                }
+            }
+        })
 
 //        binding.btnLogout.setOnClickListener {
 //            logout()

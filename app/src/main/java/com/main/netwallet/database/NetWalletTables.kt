@@ -83,6 +83,6 @@ import java.util.*
         @ColumnInfo(name = "value")
         val value: Long?,
 
-        @ColumnInfo(name = "transaction_type")
+        @ColumnInfo(name = "total")
         val transactionType: String?
     )

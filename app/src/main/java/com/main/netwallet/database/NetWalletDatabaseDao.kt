@@ -43,8 +43,12 @@ interface NetWalletDatabaseDao {
     @Query("Insert Into transaction_history (email, value, transaction_type, details, wallet_type, currency, date) Values(:email, :value, :transactionType, :details, :walletType, :currency, :date)")
     suspend fun addTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String)
 
-//    @Query("Select Sum(value), transaction_type as Total from transaction_history group by transaction_type")
-//    suspend fun sumTransaction() : List<SumTransaction>
+    @Query("Select Sum(value) as value, transaction_type as total from transaction_history group by transaction_type")
+    fun sumTransaction() : LiveData<List<SumTransaction>>
+
+    //Query to show all transaction
+    @Query("Select * from transaction_history")
+    fun getTransaction() : LiveData<List<TransactionHistory>>
 
 
 
