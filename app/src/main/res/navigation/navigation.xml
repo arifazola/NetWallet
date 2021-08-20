@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation"
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/homeFragment">
 
     <fragment
         android:id="@+id/loginFragment"
@@ -44,6 +44,9 @@
             app:destination="@id/addTransactionFragment"
             app:popUpTo="@id/homeFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_homeFragment_to_addNewAccountFragment"
+            app:destination="@id/addNewAccountFragment" />
     </fragment>
     <fragment
         android:id="@+id/initialSettingFragment"
@@ -62,6 +65,26 @@
         android:label="AddTransactionFragment" >
         <action
             android:id="@+id/action_addTransactionFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addNewAccountFragment"
+        android:name="com.main.netwallet.initialSetting.AddNewAccountFragment"
+        android:label="AddNewAccountFragment" >
+        <action
+            android:id="@+id/action_addNewAccountFragment_to_accountFragment"
+            app:destination="@id/accountFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/accountFragment"
+        android:name="com.main.netwallet.account.AccountFragment"
+        android:label="fragment_account"
+        tools:layout="@layout/fragment_account" >
+        <action
+            android:id="@+id/action_accountFragment_to_addNewAccountFragment"
+            app:destination="@id/addNewAccountFragment" />
+        <action
+            android:id="@+id/action_accountFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
 </navigation>

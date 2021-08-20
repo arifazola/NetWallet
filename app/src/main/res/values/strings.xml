@@ -33,6 +33,10 @@
     <string name="account_summary">Account Summary</string>
     <string name="income">Income</string>
     <string name="expenses">Expenses</string>
+    <string name="input_bank_account">Input Bank Account Name</string>
+    <string name="current_balance">Current Balance</string>
+    <string name="add_new_account">Add New Account</string>
+    <string name="select_account">Select Account</string>
 
     <string-array name="transaction_type">
         <item>Income</item>

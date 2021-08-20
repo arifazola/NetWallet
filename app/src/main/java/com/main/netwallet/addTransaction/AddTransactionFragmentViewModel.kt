@@ -20,17 +20,17 @@ class AddTransactionFragmentViewModel(dataSource : NetWalletDatabaseDao, applica
     val doneShowingToast : LiveData<Boolean>
     get() = _doneShowingToast
 
-    fun addTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String){
+    fun addTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String, bankDetails: String){
         viewModelScope.launch {
-            insertAddTransaction(email, value, transactionType, details, walletType, currency, date)
+            insertAddTransaction(email, value, transactionType, details, walletType, currency, date, bankDetails)
             _doneNavigating.value = true
             _doneShowingToast.value = true
 
         }
     }
 
-    private suspend fun insertAddTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String){
-        database.addTransaction(email, value, transactionType, details, walletType, currency, date)
+    private suspend fun insertAddTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String, bankDetails: String){
+        database.addTransaction(email, value, transactionType, details, walletType, currency, date, bankDetails)
     }
 
     fun doneNavigating(){

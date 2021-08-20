@@ -28,7 +28,6 @@ import java.util.*
 
         @ColumnInfo(name = "has_initialized")
         val hasInitialized: Boolean?
-
     )
 
 //    @Entity(tableName = "wallet_current_balance")
@@ -75,6 +74,9 @@ import java.util.*
         @ColumnInfo(name = "date")
         val date: String,
 
+        @ColumnInfo(name = "bank_account_name")
+        val bankAccountName: String?
+
 //        @ColumnInfo(name = "current_balance")
 //        val currentBalance: Long?
     )
@@ -85,4 +87,20 @@ import java.util.*
 
         @ColumnInfo(name = "total")
         val transactionType: String?
+    )
+
+    data class AccountList(
+        @ColumnInfo(name = "wallet_type")
+        val walletType: String?
+    )
+
+    data class SwitchAccount(
+        @ColumnInfo(name = "wallet_type")
+        val walletType: String?,
+
+        @ColumnInfo(name = "currency")
+        val currency: String?,
+
+        @ColumnInfo(name = "bank_account_name")
+        val bankAccountName: String?
     )

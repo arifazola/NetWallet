@@ -31,6 +31,12 @@ class HomeFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+    private val PREFS_KEY = "account wallet preference"
+    val PREF_KEY_EMAIL = "email preference"
+    val PREFS_KEY_LOGIN = "login preference"
+    lateinit var emailSharedPreferences: SharedPreferences
+    lateinit var sharedPreferencesAccountWallet : SharedPreferences
+    lateinit var sharedPreferencesLogin : SharedPreferences
 //    private val PREFS_KEY = "login preference"
 //    private val PREFS_KEY_EMAIL = "email preference"
 //    lateinit var sharedPreferences: SharedPreferences
@@ -51,45 +57,72 @@ class HomeFragment : Fragment() {
         // Inflate the layout for this fragment
 //        sharedPreferences = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
 //        emailSharedPreferences = requireActivity().getSharedPreferences(PREFS_KEY_EMAIL, Context.MODE_PRIVATE)
-        val binding = DataBindingUtil.inflate<FragmentHomeBinding>(inflater, R.layout.fragment_home, container, false)
-        val application = requireNotNull(this.activity).application
-        val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
-        val viewModelFactory = HomeFragmentViewModelFactory(dataSource, application)
-        val viewModel = ViewModelProvider(this, viewModelFactory).get(HomeFragmentViewModel::class.java)
-        val tvIncome = binding.tvIncome
-        val tvExpenses = binding.tvExpenses
+        sharedPreferencesAccountWallet =
+            requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
+        emailSharedPreferences =
+            requireActivity().getSharedPreferences(PREF_KEY_EMAIL, Context.MODE_PRIVATE)
+        sharedPreferencesLogin =
+            requireActivity().getSharedPreferences(PREFS_KEY_LOGIN, Context.MODE_PRIVATE)
+        val isLoggedIn: Boolean = sharedPreferencesLogin.getBoolean("is_loggedin", false)
+        val binding = DataBindingUtil.inflate<FragmentHomeBinding>(
+            inflater,
+            R.layout.fragment_home,
+            container,
+            false
+        )
+        if (isLoggedIn == false) {
+            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToLoginFragment())
+        } else {
 
-        viewModel.totalTransaction.observe(viewLifecycleOwner, Observer { list ->
-            list?.let {
+            val getEmail = emailSharedPreferences.getString("email_preference", null)
+            val getWalletType = sharedPreferencesAccountWallet.getString("wallet_type", null)
+            val currencyPreference = sharedPreferencesAccountWallet.getString("currency", null)
+            val bankAccountNamePreference =
+                sharedPreferencesAccountWallet.getString("bank_account_name", null)
+//        val walletTypePreference = sharedPreferencesAccountWallet.getString("wallet_type", null)
+//        val currencyPreference = sharedPreferencesAccountWallet.getString("currency", null)
+//        val bankAccountNamePreference = sharedPreferencesAccountWallet.getString("bank_account_name", null)
+            val application = requireNotNull(this.activity).application
+            val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
+            val viewModelFactory = HomeFragmentViewModelFactory(
+                dataSource,
+                application,
+                getEmail.toString(),
+                getWalletType.toString()
+            )
+            val viewModel =
+                ViewModelProvider(this, viewModelFactory).get(HomeFragmentViewModel::class.java)
+            val tvIncome = binding.tvIncome
+            val tvExpenses = binding.tvExpenses
+            val tvBalance = binding.tvBalance
 
-//                for(i in 0.. list.size-1){
-                    tvIncome.text = list.get(1).value.toString()
-                    tvExpenses.text = list.get(0).value.toString()
-//                }
-            }
-        })
+            viewModel.totalTransaction.observe(viewLifecycleOwner, Observer { list ->
+                list?.let {
 
-//        binding.btnLogout.setOnClickListener {
-//            logout()
-//            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToLoginFragment())
-//        }
+                    for (i in 0..list.size - 1) {
+                        if (i == 1) {
 
-//        binding.button2.setOnClickListener {
-//            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToAddTransactionFragment2())
-//        }
+                            tvIncome.text = list.get(1).value.toString()
+                            tvExpenses.text = list.get(0).value.toString()
+                        } else {
+                            tvIncome.text = list.get(0).value.toString()
+                            tvExpenses.text = "0"
+                        }
+                        val sumBalance =
+                            tvIncome.text.toString().toLong() - tvExpenses.text.toString().toLong()
+                        tvBalance.text = sumBalance.toString()
+                    }
+                    Log.e("Wallet Home", list.get(0).value.toString())
+//                Log.e("Wallet Home", list.get(1).value.toString())
+                }
+            })
+
+            Log.e(
+                "Account Wallet Home",
+                getWalletType.toString() + currencyPreference.toString() + bankAccountNamePreference.toString()
+            )
+        }
+        Log.e("login", isLoggedIn.toString())
         return binding.root
     }
-
-//    private fun logout(){
-////        sharedPreferences = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
-//        val editor : SharedPreferences.Editor = sharedPreferences.edit()
-//        editor.clear()
-//        editor.apply()
-//
-//        val editor2 : SharedPreferences.Editor = emailSharedPreferences.edit()
-//        editor2.clear()
-//        editor2.apply()
-//    }
-
-
 }

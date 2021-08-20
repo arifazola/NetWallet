@@ -1,5 +1,6 @@
 package com.main.netwallet.database
 
+import android.telecom.Call
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
@@ -36,20 +37,25 @@ interface NetWalletDatabaseDao {
     suspend fun getHasInitialized(email:String) : UserTable?
 
     //Query For First Intialization account
-    @Query("Insert Into transaction_history (email, value, transaction_type, details, wallet_type, currency, date) Values(:email,:value, :transactionType, :details ,:walletType, :currency, :date)")
-    suspend fun firstInitialize(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String)
+    @Query("Insert Into transaction_history (email, value, transaction_type, details, wallet_type, currency, date, bank_account_name) Values(:email,:value, :transactionType, :details ,:walletType, :currency, :date, :bankDetails)")
+    suspend fun firstInitialize(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String, bankDetails: String)
 
     //Query for adding transaction
-    @Query("Insert Into transaction_history (email, value, transaction_type, details, wallet_type, currency, date) Values(:email, :value, :transactionType, :details, :walletType, :currency, :date)")
-    suspend fun addTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String)
+    @Query("Insert Into transaction_history (email, value, transaction_type, details, wallet_type, currency, date, bank_account_name) Values(:email, :value, :transactionType, :details, :walletType, :currency, :date, :bankDetails)")
+    suspend fun addTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String, bankDetails: String)
 
-    @Query("Select Sum(value) as value, transaction_type as total from transaction_history group by transaction_type")
-    fun sumTransaction() : LiveData<List<SumTransaction>>
+    @Query("Select Sum(value) as value, transaction_type as total from transaction_history where email=:email AND wallet_type=:walletType group by transaction_type")
+    fun sumTransaction(email: String, walletType: String) : LiveData<List<SumTransaction>>
 
     //Query to show all transaction
-    @Query("Select * from transaction_history")
-    fun getTransaction() : LiveData<List<TransactionHistory>>
+    @Query("Select * from transaction_history where wallet_type=:walletType")
+    fun getTransaction(walletType: String) : LiveData<List<TransactionHistory>>
 
+    //Query to show all account type
+    @Query("Select wallet_type from transaction_history where details='Account Opening' AND email=:email")
+    fun getAccountList(email: String): LiveData<List<AccountList>>
 
-
+    //Query to switch account
+    @Query("Select wallet_type, currency, bank_account_name from transaction_history where email=:email And wallet_type=:walletType Limit 1")
+    fun switchAccount(email:String, walletType: String): LiveData<List<SwitchAccount>>
 }

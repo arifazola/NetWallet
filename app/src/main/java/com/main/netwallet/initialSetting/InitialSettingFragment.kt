@@ -38,7 +38,9 @@ class InitialSettingFragment : Fragment() , AdapterView.OnItemSelectedListener{
     private var param1: String? = null
     private var param2: String? = null
     val PREFS_KEY_EMAIL = "email preference"
+    val PREFS_KEY_EMAIL2 = "account wallet preference"
     lateinit var sharedPreferencesEmail : SharedPreferences
+    lateinit var sharedPreferencesAccountWallet : SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +78,8 @@ class InitialSettingFragment : Fragment() , AdapterView.OnItemSelectedListener{
 //            binding.initial = viewModel
             sharedPreferencesEmail = requireActivity().getSharedPreferences(PREFS_KEY_EMAIL, Context.MODE_PRIVATE)
             val getEmailPreferences : String? = sharedPreferencesEmail.getString("email_preference", null)
+
+            sharedPreferencesAccountWallet = requireActivity().getSharedPreferences(PREFS_KEY_EMAIL2, Context.MODE_PRIVATE)
 
         //Checking if hasInitialized
         viewModel.getHasInitialized(getEmailPreferences!!)
@@ -124,6 +128,7 @@ class InitialSettingFragment : Fragment() , AdapterView.OnItemSelectedListener{
                 val currencyVal = currencySpinner.selectedItem.toString()
                 val balance = binding.etInputBalance.text.toString()
                 val date : String = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+                val bankDetails = binding.spBankDetails.text.toString()
 
                 if (balance.isBlank()) {
                     Toast.makeText(context, "Please fill the empty form", Toast.LENGTH_LONG).show()
@@ -137,7 +142,8 @@ class InitialSettingFragment : Fragment() , AdapterView.OnItemSelectedListener{
                         "Account Opening",
                         accountTypeVal,
                         currencyVal,
-                        date
+                        date,
+                        bankDetails
                     )
 //                viewModel.updateHasInitialized(true)
                     viewModel.doneNavigating.observe(viewLifecycleOwner, Observer {
@@ -149,6 +155,7 @@ class InitialSettingFragment : Fragment() , AdapterView.OnItemSelectedListener{
 
                 }
                 Log.e("email", getEmailPreferences.toString())
+                accountWalletPreference(accountTypeVal, currencyVal, bankDetails)
             }
         return binding.root
     }
@@ -158,15 +165,29 @@ class InitialSettingFragment : Fragment() , AdapterView.OnItemSelectedListener{
         val selected = parent?.getItemAtPosition(position)
 //        val selectedSec = parent?.getItemIdAtPosition(position)
 //        val accountTypeVal = requireView().findViewById<TextView>(R.id.tvAccountType)
+        val bankDetails = requireView().findViewById<EditText>(R.id.spBankDetails)
 //        val currencyTypeVal = requireView().findViewById<TextView>(R.id.tvCurrency)
 //        accountTypeVal.text = selectedSec.toString()
 //        currencyTypeVal.text = selected.toString()
+        if(selected == "Bank Account"){
+            bankDetails.visibility = View.VISIBLE
+        }else if(selected == "Cash"){
+            bankDetails.visibility = View.GONE
+        }
 
         Log.e("Spinner", "Hello $selected")
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
         TODO("Not yet implemented")
+    }
+
+    private fun accountWalletPreference(walletType: String, currency: String, bankAccountName: String){
+        val editor : SharedPreferences.Editor = sharedPreferencesAccountWallet.edit()
+        editor.putString("wallet_type", walletType)
+        editor.putString("currency", currency)
+        editor.putString("bank_account_name", bankAccountName)
+        editor.apply()
     }
 
 

@@ -8,12 +8,14 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.main.netwallet.addTransaction.AddTransactionFragment
+import com.main.netwallet.initialSetting.AddNewAccountFragment
 
 
 class MainActivity : AppCompatActivity() {
@@ -66,6 +68,16 @@ class MainActivity : AppCompatActivity() {
 //                return@OnNavigationItemSelectedListener true
                 val intent = Intent(this, LogoutActivity::class.java)
                 startActivity(intent)
+                return@OnNavigationItemSelectedListener true
+            }
+            R.id.account ->{
+//                supportFragmentManager.beginTransaction().replace(R.id.containter, AddNewAccountFragment()).commit()
+//                return@OnNavigationItemSelectedListener true
+                findNavController(R.id.navHostFragment).navigate(R.id.accountFragment)
+                return@OnNavigationItemSelectedListener true
+            }
+            R.id.homeBottom ->{
+                findNavController(R.id.navHostFragment).navigate(R.id.homeFragment)
                 return@OnNavigationItemSelectedListener true
             }
             else -> false

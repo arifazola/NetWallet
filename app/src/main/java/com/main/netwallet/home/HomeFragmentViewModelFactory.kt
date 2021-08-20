@@ -6,10 +6,10 @@ import androidx.lifecycle.ViewModelProvider
 import com.main.netwallet.database.NetWalletDatabaseDao
 import java.lang.IllegalArgumentException
 
-class HomeFragmentViewModelFactory(private val datasource: NetWalletDatabaseDao, private val application: Application) : ViewModelProvider.Factory{
+class HomeFragmentViewModelFactory(private val datasource: NetWalletDatabaseDao, private val application: Application, private val email: String, private val walletType: String) : ViewModelProvider.Factory{
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(HomeFragmentViewModel::class.java)){
-            return HomeFragmentViewModel(datasource, application) as T
+            return HomeFragmentViewModel(datasource, application, email, walletType) as T
         }else{
             throw IllegalArgumentException("No ViewModel Found")
         }

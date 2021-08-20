@@ -32,9 +32,9 @@ class InitialSetttingViewModel(datasource : NetWalletDatabaseDao, application: A
 //        }
 //    }
 
-    fun firstTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String){
+    fun firstTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String, bankDetails: String){
         viewModelScope.launch {
-            insertFirstTransaction(email, value, transactionType, details, walletType, currency, date)
+            insertFirstTransaction(email, value, transactionType, details, walletType, currency, date, bankDetails)
         }
     }
 
@@ -59,8 +59,8 @@ class InitialSetttingViewModel(datasource : NetWalletDatabaseDao, application: A
         database.insertCurrency(currency, hasInitialized, email)
     }
 
-    private suspend fun insertFirstTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String){
-        database.firstInitialize(email, value, transactionType, details, walletType, currency, date)
+    private suspend fun insertFirstTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String, bankDetails: String){
+        database.firstInitialize(email, value, transactionType, details, walletType, currency, date, bankDetails)
     }
 
 //    private suspend fun insertDetails(email: String, walletType: String, balance: Long, currency: String){

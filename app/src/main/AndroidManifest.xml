@@ -10,7 +10,8 @@
         android:screenOrientation="sensorPortrait"
         android:supportsRtl="true"
         android:theme="@style/Theme.NetWallet">
-        <activity android:name=".LogoutActivity"></activity>
+        <activity android:name=".account.ChangingAccount"></activity>
+        <activity android:name=".LogoutActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

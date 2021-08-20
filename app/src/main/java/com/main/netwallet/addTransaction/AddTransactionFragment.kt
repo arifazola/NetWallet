@@ -3,6 +3,7 @@ package com.main.netwallet.addTransaction
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -36,7 +37,9 @@ class AddTransactionFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var param1: String? = null
     private var param2: String? = null
     val PREFS_KEY_EMAIL = "email preference"
+    private val PREFS_KEY = "account wallet preference"
     lateinit var sharedPreferencesEmail : SharedPreferences
+    lateinit var sharedPreferencesAccountWallet : SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +63,11 @@ class AddTransactionFragment : Fragment(), AdapterView.OnItemSelectedListener {
         sharedPreferencesEmail = requireActivity().getSharedPreferences(PREFS_KEY_EMAIL, Context.MODE_PRIVATE)
         val getEmailPref : String? = sharedPreferencesEmail.getString("email_preference", null)
 
+        sharedPreferencesAccountWallet = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
+        val walletTypePreference = sharedPreferencesAccountWallet.getString("wallet_type", null)
+        val currencyPreference = sharedPreferencesAccountWallet.getString("currency", null)
+        val bankAccountNamePreference = sharedPreferencesAccountWallet.getString("bank_account_name", null)
+
         ArrayAdapter.createFromResource(
             this.requireContext(),
             R.array.transaction_type,
@@ -78,7 +86,7 @@ class AddTransactionFragment : Fragment(), AdapterView.OnItemSelectedListener {
             val details = binding.etDetailTransaction.text.toString()
             val date : String = SimpleDateFormat("dd/MM/yyy", Locale.getDefault()).format(Date())
 
-            viewModel.addTransaction(getEmailPref.toString(), value.toLong(), transactionType, details, "Bank Account", "Indonesian Rupiah (IDR)", date)
+            viewModel.addTransaction(getEmailPref.toString(), value.toLong(), transactionType, details, walletTypePreference.toString(), currencyPreference.toString(), date, bankAccountNamePreference.toString())
 
             viewModel.doneShowingToast.observe(viewLifecycleOwner, Observer {
                 if(it == true){
@@ -90,6 +98,7 @@ class AddTransactionFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
 
         }
+        Log.e("Account Wallet", walletTypePreference.toString() + currencyPreference.toString() + bankAccountNamePreference.toString())
         return binding.root
     }
 

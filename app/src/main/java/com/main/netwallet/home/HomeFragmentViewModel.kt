@@ -10,12 +10,12 @@ import com.main.netwallet.database.NetWalletDatabaseDao
 import com.main.netwallet.database.SumTransaction
 import kotlinx.coroutines.launch
 
-class HomeFragmentViewModel(dataSource: NetWalletDatabaseDao, application: Application) : ViewModel() {
+class HomeFragmentViewModel(dataSource: NetWalletDatabaseDao, application: Application, email: String, walletType: String) : ViewModel() {
 
     val database = dataSource
 
-    val transaction = database.getTransaction()
+    val transaction = database.getTransaction(walletType)
 
-    val totalTransaction = database.sumTransaction()
+    val totalTransaction = database.sumTransaction(email, walletType)
 
 }
