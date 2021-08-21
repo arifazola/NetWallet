@@ -81,6 +81,21 @@ import java.util.*
 //        val currentBalance: Long?
     )
 
+    @Entity(tableName = "reminder_table")
+    data class ReminderTable(
+        @PrimaryKey(autoGenerate = true)
+        var id: Int,
+
+        @ColumnInfo(name = "email")
+        val email: String?,
+
+        @ColumnInfo(name = "reminder_date")
+        val date: String?,
+
+        @ColumnInfo(name = "reminder_details")
+        val reminderDetails: String?,
+    )
+
     data class SumTransaction(
         @ColumnInfo(name = "value")
         val value: Long?,
@@ -103,4 +118,9 @@ import java.util.*
 
         @ColumnInfo(name = "bank_account_name")
         val bankAccountName: String?
+    )
+
+    data class GetReminderDate(
+        @ColumnInfo(name = "reminder_date")
+        val getReminderDate: String
     )

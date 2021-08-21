@@ -33,6 +33,8 @@ class RegisterFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     private val PREFS_KEY_EMAIL = "email preference"
+    val PREFS_KEY = "login preference"
+    lateinit var sharedPreferencesLogin : SharedPreferences
     lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,6 +51,7 @@ class RegisterFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         sharedPreferences = requireActivity().getSharedPreferences(PREFS_KEY_EMAIL, Context.MODE_PRIVATE)
+        sharedPreferencesLogin = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
         val binding = DataBindingUtil.inflate<FragmentRegisterBinding>(inflater,R.layout.fragment_register, container, false)
         val application = requireNotNull(this.activity).application
         val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
@@ -88,6 +91,7 @@ class RegisterFragment : Fragment() {
                 })
 
                 setEmailSharedPreference(email)
+                savePreferences()
             }
         }
         return binding.root
@@ -96,6 +100,12 @@ class RegisterFragment : Fragment() {
     private fun setEmailSharedPreference(email: String){
         val editor : SharedPreferences.Editor = sharedPreferences.edit()
         editor.putString("email_preference", email)
+        editor.apply()
+    }
+
+    private fun savePreferences(){
+        val editor : SharedPreferences.Editor = sharedPreferencesLogin.edit()
+        editor.putBoolean("is_loggedin", true)
         editor.apply()
     }
 

@@ -58,4 +58,12 @@ interface NetWalletDatabaseDao {
     //Query to switch account
     @Query("Select wallet_type, currency, bank_account_name from transaction_history where email=:email And wallet_type=:walletType Limit 1")
     fun switchAccount(email:String, walletType: String): LiveData<List<SwitchAccount>>
+
+    //Query to input reminder
+    @Query("Insert Into reminder_table (email, reminder_date, reminder_details) VALUES(:email, :reminderDate, :reminderDetails)")
+    suspend fun addReminder(email: String, reminderDate: String, reminderDetails: String)
+
+    //Query to get reminder date
+    @Query("Select reminder_date from reminder_table WHERE email=:email")
+    fun getReminderDate(email: String) : LiveData<List<GetReminderDate>>
 }

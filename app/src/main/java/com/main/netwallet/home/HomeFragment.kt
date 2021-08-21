@@ -12,6 +12,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.main.netwallet.MainActivity
 import com.main.netwallet.R
 import com.main.netwallet.database.NetWalletDatabase
 import com.main.netwallet.databinding.FragmentHomeBinding
@@ -95,6 +96,7 @@ class HomeFragment : Fragment() {
             val tvIncome = binding.tvIncome
             val tvExpenses = binding.tvExpenses
             val tvBalance = binding.tvBalance
+            val btnNotif = binding.btnNotif
 
             viewModel.totalTransaction.observe(viewLifecycleOwner, Observer { list ->
                 list?.let {
@@ -112,7 +114,7 @@ class HomeFragment : Fragment() {
                             tvIncome.text.toString().toLong() - tvExpenses.text.toString().toLong()
                         tvBalance.text = sumBalance.toString()
                     }
-                    Log.e("Wallet Home", list.get(0).value.toString())
+//                    Log.e("Wallet Home", list.get(0).value.toString())
 //                Log.e("Wallet Home", list.get(1).value.toString())
                 }
             })
@@ -121,6 +123,10 @@ class HomeFragment : Fragment() {
                 "Account Wallet Home",
                 getWalletType.toString() + currencyPreference.toString() + bankAccountNamePreference.toString()
             )
+
+            btnNotif.setOnClickListener {
+                (activity as MainActivity?)!!.notif()
+            }
         }
         Log.e("login", isLoggedIn.toString())
         return binding.root
