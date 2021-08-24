@@ -47,9 +47,13 @@ interface NetWalletDatabaseDao {
     @Query("Select Sum(value) as value, transaction_type as total from transaction_history where email=:email AND wallet_type=:walletType group by transaction_type")
     fun sumTransaction(email: String, walletType: String) : LiveData<List<SumTransaction>>
 
-    //Query to show all transaction
-    @Query("Select * from transaction_history where wallet_type=:walletType")
-    fun getTransaction(walletType: String) : LiveData<List<TransactionHistory>>
+    //Query to show Income transaction
+    @Query("Select * from transaction_history where wallet_type=:walletType AND transaction_type='Income'")
+    fun getIncomeTransaction(walletType: String) : LiveData<List<IncomeTransaction>>
+
+    //Query to show Expenses transaction
+    @Query("Select * from transaction_history where wallet_type=:walletType AND transaction_type='Expenses'")
+    fun getExpensesTransaction(walletType: String) : LiveData<List<ExpensesTransaction>>
 
     //Query to show all account type
     @Query("Select wallet_type from transaction_history where details='Account Opening' AND email=:email")

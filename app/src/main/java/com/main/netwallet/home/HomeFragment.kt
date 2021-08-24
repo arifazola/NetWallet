@@ -93,10 +93,10 @@ class HomeFragment : Fragment() {
             )
             val viewModel =
                 ViewModelProvider(this, viewModelFactory).get(HomeFragmentViewModel::class.java)
-            val tvIncome = binding.tvIncome
-            val tvExpenses = binding.tvExpenses
+//            val tvIncome = binding.tvIncome
+//            val tvExpenses = binding.tvExpenses
             val tvBalance = binding.tvBalance
-            val btnNotif = binding.btnNotif
+//            val btnNotif = binding.btnNotif
 
             viewModel.totalTransaction.observe(viewLifecycleOwner, Observer { list ->
                 list?.let {
@@ -104,14 +104,15 @@ class HomeFragment : Fragment() {
                     for (i in 0..list.size - 1) {
                         if (i == 1) {
 
-                            tvIncome.text = list.get(1).value.toString()
-                            tvExpenses.text = list.get(0).value.toString()
+//                            tvIncome.text = list.get(1).value.toString()
+//                            tvExpenses.text = list.get(0).value.toString()
                         } else {
-                            tvIncome.text = list.get(0).value.toString()
-                            tvExpenses.text = "0"
+//                            tvIncome.text = list.get(0).value.toString()
+//                            tvExpenses.text = "0"
                         }
-                        val sumBalance =
-                            tvIncome.text.toString().toLong() - tvExpenses.text.toString().toLong()
+//                            tvIncome.text.toString().toLong() - tvExpenses.text.toString().toLong()
+//                        tvBalance.text = sumBalance.toString()
+                            val sumBalance = list.get(1).value.toString().toLong() - list.get(0).value.toString().toLong()
                         tvBalance.text = sumBalance.toString()
                     }
 //                    Log.e("Wallet Home", list.get(0).value.toString())
@@ -124,11 +125,46 @@ class HomeFragment : Fragment() {
                 getWalletType.toString() + currencyPreference.toString() + bankAccountNamePreference.toString()
             )
 
-            btnNotif.setOnClickListener {
-                (activity as MainActivity?)!!.notif()
+//            btnNotif.setOnClickListener {
+//                (activity as MainActivity?)!!.notif()
+//            }
+
+            val tvIncome = binding.textView6
+            val tvExpenses = binding.textView10
+            val tvTransactionList = binding.tvTransactionList
+
+            tvExpenses.setOnClickListener {
+                tvTransactionList.text=""
+                tvIncome.setTextColor(resources.getColor(R.color.black))
+                tvExpenses.setTextColor(resources.getColor(R.color.button_active))
+                viewModel.expensesTransaction.observe(viewLifecycleOwner, Observer { list ->
+                    list?.let {
+                        for(i in 0..list.size-1){
+                            tvTransactionList.append("," + list.get(i).value.toString())
+                        }
+                    }
+                })
+            }
+
+            tvIncome.setOnClickListener {
+                tvTransactionList.text = ""
+                tvIncome.setTextColor(resources.getColor(R.color.button_active))
+                tvExpenses.setTextColor(resources.getColor(R.color.black))
+                viewModel.incomeTransaction.observe(viewLifecycleOwner, Observer { list ->
+                    list?.let {
+                        for(i in 0..list.size-1){
+                            tvTransactionList.append("," + list.get(i).value.toString())
+                        }
+                    }
+                })
             }
         }
+
         Log.e("login", isLoggedIn.toString())
         return binding.root
+    }
+
+    private fun showIncomeTransaction(){
+
     }
 }

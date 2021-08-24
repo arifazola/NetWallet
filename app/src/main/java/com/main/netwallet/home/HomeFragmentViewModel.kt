@@ -14,7 +14,9 @@ class HomeFragmentViewModel(dataSource: NetWalletDatabaseDao, application: Appli
 
     val database = dataSource
 
-    val transaction = database.getTransaction(walletType)
+    val incomeTransaction = database.getIncomeTransaction(walletType)
+
+    val expensesTransaction = database.getExpensesTransaction(walletType)
 
     val totalTransaction = database.sumTransaction(email, walletType)
 

@@ -124,3 +124,13 @@ import java.util.*
         @ColumnInfo(name = "reminder_date")
         val getReminderDate: String
     )
+
+    data class IncomeTransaction(
+        @ColumnInfo(name = "value")
+        val value: Long?
+    )
+
+    data class ExpensesTransaction(
+        @ColumnInfo(name = "value")
+        val value: Long?
+    )
