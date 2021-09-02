@@ -8,10 +8,10 @@ import androidx.lifecycle.viewModelScope
 import com.main.netwallet.database.NetWalletDatabaseDao
 import kotlinx.coroutines.launch
 
-class GetDateViewModel (dataSource: NetWalletDatabaseDao, application: Application, email: String) : ViewModel() {
+class GetDateViewModel (dataSource: NetWalletDatabaseDao, application: Application, email: String, date: String) : ViewModel() {
 
     val database = dataSource
 
-    val getReminderDate = database.getReminderDate(email)
+    val getReminderDate = database.getReminderDate(email, date)
 
 }

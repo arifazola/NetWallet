@@ -78,6 +78,8 @@ class AddTransactionFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 transactionTypeSpinner.adapter = adapter
             }
 
+        binding.tvCurrentAccount.text = walletTypePreference.toString()
+
         transactionTypeSpinner.onItemSelectedListener = this
 
         binding.btnInput.setOnClickListener {

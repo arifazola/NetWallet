@@ -63,5 +63,6 @@
     <string name="reminder">Reminder</string>
     <string name="set_reminder">Set Reminder</string>
     <string name="reminder_details">Reminder Details</string>
+    <string name="date_reminder">Set Date (dd/MM/yyyy)</string>
 </resources>
 

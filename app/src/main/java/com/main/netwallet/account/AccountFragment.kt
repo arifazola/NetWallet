@@ -12,10 +12,12 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import androidx.activity.addCallback
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.main.netwallet.MainActivity
 import com.main.netwallet.R
 import com.main.netwallet.database.NetWalletDatabase
 import com.main.netwallet.databinding.FragmentAccountBinding
@@ -45,6 +47,10 @@ class AccountFragment : Fragment(), AdapterView.OnItemSelectedListener {
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
+        }
+
+        val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
+            findNavController().navigate(R.id.homeFragment)
         }
     }
 
@@ -124,8 +130,17 @@ class AccountFragment : Fragment(), AdapterView.OnItemSelectedListener {
 //                }
 //            })
 //            findNavController().navigate(AccountFragmentDirections.actionAccountFragmentToHomeFragment())
-            val intent = Intent(requireContext(), ChangingAccount::class.java)
-            startActivity(intent)
+            val toNotifFragment = activity?.intent?.getStringExtra("toNotifFragment")
+            if(toNotifFragment.equals("NotifFragment")) {
+                val intent = Intent(requireContext(), ChangingAccount::class.java).putExtra(
+                    "toReminder",
+                    "ReminderFragment"
+                )
+                startActivity(intent)
+            }else{
+                val intent = Intent(requireContext(), ChangingAccount::class.java)
+                startActivity(intent)
+            }
         }
         Log.e("Account Wallet OnClick", walletTypePreference.toString() + currencyPreference.toString() + bankAccountNamePreference.toString())
 

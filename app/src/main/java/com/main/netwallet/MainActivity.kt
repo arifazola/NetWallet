@@ -44,7 +44,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerID : DrawerLayout
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_main)
         val navController = this.findNavController(R.id.navHostFragment)
 
@@ -53,8 +52,6 @@ class MainActivity : AppCompatActivity() {
         val fab = findViewById<FloatingActionButton>(R.id.fab)
 
         fab.setOnClickListener {
-//            val destination = AddTransactionFragment()
-//            supportFragmentManager.beginTransaction().replace(R.id.navHostFragment, destination).commit()
             findNavController(R.id.navHostFragment).navigate(R.id.addTransactionFragment)
         }
 
@@ -75,6 +72,9 @@ class MainActivity : AppCompatActivity() {
                 fab.visibility = View.GONE
             }else if(destination.id == R.id.addTransactionFragment){
                 fab.visibility = View.GONE
+            }else if(destination.id == R.id.transactionNotificationFragment) {
+                bottomNavigationView.visibility = View.GONE
+                fab.visibility = View.GONE
             }else{
                 bottomNavigationView.visibility = View.VISIBLE
                 fab.visibility = View.VISIBLE
@@ -85,7 +85,9 @@ class MainActivity : AppCompatActivity() {
         val getEmail = sharedPreferenceEmail.getString("email_preference", null)
         val application = requireNotNull(this).application
         val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
-        val viewModelProvider = ReminderFragementViewModelFactory(dataSource, application, getEmail.toString())
+        val todayDate: String =
+            SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+        val viewModelProvider = ReminderFragementViewModelFactory(dataSource, application, getEmail.toString(), todayDate)
         val viewModel = ViewModelProvider(this, viewModelProvider).get(ReminderFragementViewModel::class.java)
 
         viewModel.getReminderDate.observe(this, Observer { list->
@@ -93,12 +95,14 @@ class MainActivity : AppCompatActivity() {
                for (i in 0..list.size -1) {
                    if (i >= 0){
                    val getReminderDate = list.get(0).getReminderDate
-                   val todayDate: String =
-                       SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
                     val compare = getReminderDate.equals(todayDate)
 
-                   if (getReminderDate.equals(todayDate)) {
-                       notif()
+                   if (getReminderDate == todayDate) {
+                       val toNotifFragment = intent.getStringExtra("toNotifFragment")
+                       val goToReminder = intent.getStringExtra("TransactionReminderFragment")
+                       if (!toNotifFragment.equals("NotifFragment") && !goToReminder.equals("GoToReminderFragment")){
+                           notif("You Have Pending Transaction", list.get(0).getReminderDetails)
+                       }
                        Log.e("Notif", getReminderDate)
                        Log.e("Notif", todayDate)
                        Log.e("Notif", compare.toString())
@@ -108,22 +112,30 @@ class MainActivity : AppCompatActivity() {
            }
         })
 
+        val toNotifFragment = intent.getStringExtra("toNotifFragment")
+        if (toNotifFragment.equals("NotifFragment")){
+            findNavController(R.id.navHostFragment).navigate(R.id.accountFragment)
+        }
+
+        val goToReminder = intent.getStringExtra("TransactionReminderFragment")
+        if (goToReminder.equals("GoToReminderFragment")){
+            findNavController(R.id.navHostFragment).navigate(R.id.transactionNotificationFragment)
+        }
+
+        Log.e("Activity", "Main Activity")
+        Log.e("toReminder", intent.getStringExtra("toReminder").toString())
+
+
     }
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { menuItem ->
         when(menuItem.itemId){
             R.id.logout -> {
-//                val destination = LogoutActivity()
-//                supportFragmentManager.beginTransaction().replace(R.id.containter,destination,destination.javaClass.simpleName)
-//                    .commit()
-//                return@OnNavigationItemSelectedListener true
                 val intent = Intent(this, LogoutActivity::class.java)
                 startActivity(intent)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.account ->{
-//                supportFragmentManager.beginTransaction().replace(R.id.containter, AddNewAccountFragment()).commit()
-//                return@OnNavigationItemSelectedListener true
                 findNavController(R.id.navHostFragment).navigate(R.id.accountFragment)
                 return@OnNavigationItemSelectedListener true
             }
@@ -139,18 +151,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun notif(){
+    fun notif(titleNotif: String, contentNotif: String){
         createNotificationChannel()
 
-        val intent = Intent(this, TestNotifActivity::class.java).apply {
+        val intent = Intent(this, MainActivity::class.java)
+            .putExtra("toNotifFragment", "NotifFragment")
+            .apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         val pendingIntent : PendingIntent = PendingIntent.getActivity(this,0, intent, 0)
 
         var notifBuilder = NotificationCompat.Builder(this, "CHANNEL_ID")
             .setSmallIcon(R.drawable.ic_baseline_notifications_24)
-            .setContentTitle("Test Notification")
-            .setContentText("This is sample notification")
+            .setContentTitle(titleNotif)
+            .setContentText(contentNotif)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)

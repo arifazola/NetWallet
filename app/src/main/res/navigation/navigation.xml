@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation"
-    app:startDestination="@id/homeFragment">
+    app:startDestination="@id/graphFragment">
 
     <fragment
         android:id="@+id/loginFragment"
@@ -96,4 +96,17 @@
         android:name="com.main.netwallet.reminder.ReminderFragment"
         android:label="fragment_reminder"
         tools:layout="@layout/fragment_reminder" />
+    <fragment
+        android:id="@+id/transactionNotificationFragment"
+        android:name="com.main.netwallet.setTransactionFromReminder.TransactionNotificationFragment"
+        android:label="fragment_transaction_notification"
+        tools:layout="@layout/fragment_transaction_notification" >
+        <action
+            android:id="@+id/action_transactionNotificationFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/graphFragment"
+        android:name="com.main.netwallet.graph.GraphFragment"
+        android:label="GraphFragment" />
 </navigation>

@@ -50,9 +50,10 @@ class ReminderFragment : Fragment() {
         sharedPreferenceEmail = requireActivity().getSharedPreferences(PREF_KEY_EMAIL, Context.MODE_PRIVATE)
         val getEmail = sharedPreferenceEmail.getString("email_preference", null)
         val binding = DataBindingUtil.inflate<FragmentReminderBinding>(inflater, R.layout.fragment_reminder, container, false)
+        val reminderDate = binding.etSetDate.text.toString()
         val application = requireNotNull(this.activity).application
         val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
-        val viewModelProvider = ReminderFragementViewModelFactory(dataSource, application, getEmail.toString())
+        val viewModelProvider = ReminderFragementViewModelFactory(dataSource, application, getEmail.toString(), reminderDate)
         val viewModel = ViewModelProvider(this, viewModelProvider).get(ReminderFragementViewModel::class.java)
         binding.reminder = viewModel
 

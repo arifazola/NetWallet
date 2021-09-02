@@ -52,8 +52,19 @@ class ChangingAccount : AppCompatActivity() {
             }
         })
 
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
+
+        val toReminder = intent.getStringExtra("toReminder")
+        if(toReminder.equals("ReminderFragment")){
+            val intent = Intent(this, MainActivity::class.java).putExtra("TransactionReminderFragment","GoToReminderFragment")
+            startActivity(intent)
+            this.finish()
+        }else {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            this.finish()
+        }
+
+        Log.e("Activity", "Changing Account")
     }
 
     private fun switchAccount(walletType: String, currency: String, bankAccountName: String){

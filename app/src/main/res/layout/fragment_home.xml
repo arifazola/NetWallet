@@ -27,7 +27,7 @@
             android:layout_height="300dp"
             android:layout_alignParentTop="true"
             android:layout_marginTop="-100dp"
-            android:layout_marginBottom="530dp"
+            android:layout_marginBottom="500dp"
             android:background="@drawable/roundbutton"
             android:gravity="center"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -63,7 +63,7 @@
             android:text="@string/income"
             android:textColor="#2196F3"
             android:textSize="24sp"
-            app:layout_constraintBottom_toBottomOf="@+id/textView10"
+            app:layout_constraintBottom_toBottomOf="@+id/header"
             app:layout_constraintEnd_toStartOf="@+id/textView10"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
@@ -76,19 +76,32 @@
             android:layout_marginTop="8dp"
             android:text="@string/expenses"
             android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="@+id/header"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/textView6"
             app:layout_constraintTop_toBottomOf="@+id/tvBalance" />
 
-        <TextView
-            android:id="@+id/tvTransactionList"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvShowTransaction"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/header" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvShowExpenses"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/header"
+            android:visibility="gone"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

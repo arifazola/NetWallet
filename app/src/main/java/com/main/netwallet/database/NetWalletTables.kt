@@ -94,6 +94,9 @@ import java.util.*
 
         @ColumnInfo(name = "reminder_details")
         val reminderDetails: String?,
+
+        @ColumnInfo(name = "status")
+        val status: String?
     )
 
     data class SumTransaction(
@@ -122,15 +125,37 @@ import java.util.*
 
     data class GetReminderDate(
         @ColumnInfo(name = "reminder_date")
-        val getReminderDate: String
+        val getReminderDate: String,
+
+        @ColumnInfo(name = "reminder_details")
+        val getReminderDetails: String
     )
 
     data class IncomeTransaction(
+
+        @ColumnInfo(name = "id")
+        var id: Int?,
+
         @ColumnInfo(name = "value")
-        val value: Long?
+        val value: Long?,
+
+        @ColumnInfo(name = "transaction_type")
+        val transactionType: String?,
+
+        @ColumnInfo(name = "details")
+        val details: String?
     )
 
     data class ExpensesTransaction(
+        @ColumnInfo(name = "id")
+        var id: Int?,
+
         @ColumnInfo(name = "value")
-        val value: Long?
+        val value: Long?,
+
+        @ColumnInfo(name = "transaction_type")
+        val transactionType: String?,
+
+        @ColumnInfo(name = "details")
+        val details: String?
     )

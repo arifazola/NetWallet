@@ -30,6 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:ems="10"
+            android:hint="@string/date_reminder"
             android:inputType="date"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -45,7 +46,7 @@
             android:inputType="textPersonName"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextDate" />
+            app:layout_constraintTop_toBottomOf="@+id/etSetDate" />
 
         <Button
             android:id="@+id/btSetReminder"

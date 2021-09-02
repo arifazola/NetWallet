@@ -7,10 +7,10 @@ import com.main.netwallet.database.NetWalletDatabaseDao
 import com.main.netwallet.register.RegisterFragmentViewModel
 import java.lang.IllegalArgumentException
 
-class ReminderFragementViewModelFactory(val dataSource: NetWalletDatabaseDao, val application : Application, val email: String): ViewModelProvider.Factory {
+class ReminderFragementViewModelFactory(val dataSource: NetWalletDatabaseDao, val application : Application, val email: String, val date: String): ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(ReminderFragementViewModel::class.java)){
-            return ReminderFragementViewModel(dataSource, application, email) as T
+            return ReminderFragementViewModel(dataSource, application, email, date) as T
         }
         throw IllegalArgumentException("Model View Can't be found")
     }

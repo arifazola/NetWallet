@@ -1,6 +1,7 @@
 package com.main.netwallet.home
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
@@ -8,12 +9,15 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.main.netwallet.MainActivity
 import com.main.netwallet.R
+import com.main.netwallet.adapter.ShowExpensesAdapter
+import com.main.netwallet.adapter.ShowTransactionAdapter
 import com.main.netwallet.database.NetWalletDatabase
 import com.main.netwallet.databinding.FragmentHomeBinding
 import kotlin.math.log
@@ -48,6 +52,13 @@ class HomeFragment : Fragment() {
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
+        }
+
+        val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
+//            val intent = Intent(activity, MainActivity::class.java)
+//            startActivity(intent)
+            activity?.finishAffinity()
+            System.exit(0)
         }
     }
 
@@ -96,6 +107,13 @@ class HomeFragment : Fragment() {
 //            val tvIncome = binding.tvIncome
 //            val tvExpenses = binding.tvExpenses
             val tvBalance = binding.tvBalance
+
+            val adapter1 = ShowTransactionAdapter()
+
+            val adapter2 = ShowExpensesAdapter()
+
+            binding.rvShowTransaction.adapter = adapter1
+            binding.rvShowExpenses.adapter = adapter2
 //            val btnNotif = binding.btnNotif
 
             viewModel.totalTransaction.observe(viewLifecycleOwner, Observer { list ->
@@ -106,17 +124,27 @@ class HomeFragment : Fragment() {
 
 //                            tvIncome.text = list.get(1).value.toString()
 //                            tvExpenses.text = list.get(0).value.toString()
+                            val sumBalance = list.get(1).value.toString().toLong() - list.get(0).value.toString().toLong()
+                            tvBalance.text = sumBalance.toString()
                         } else {
 //                            tvIncome.text = list.get(0).value.toString()
 //                            tvExpenses.text = "0"
+                            val sumBalance = list.get(0).value.toString().toLong()
+                            tvBalance.text = sumBalance.toString()
                         }
 //                            tvIncome.text.toString().toLong() - tvExpenses.text.toString().toLong()
 //                        tvBalance.text = sumBalance.toString()
-                            val sumBalance = list.get(1).value.toString().toLong() - list.get(0).value.toString().toLong()
-                        tvBalance.text = sumBalance.toString()
+//                            val sumBalance = list.get(1).value.toString().toLong() - list.get(0).value.toString().toLong()
+//                        tvBalance.text = sumBalance.toString()
                     }
 //                    Log.e("Wallet Home", list.get(0).value.toString())
 //                Log.e("Wallet Home", list.get(1).value.toString())
+                }
+            })
+
+            viewModel.incomeTransaction.observe(viewLifecycleOwner, Observer { list ->
+                list?.let {
+                    adapter1.data = it
                 }
             })
 
@@ -131,32 +159,33 @@ class HomeFragment : Fragment() {
 
             val tvIncome = binding.textView6
             val tvExpenses = binding.textView10
-            val tvTransactionList = binding.tvTransactionList
 
             tvExpenses.setOnClickListener {
-                tvTransactionList.text=""
-                tvIncome.setTextColor(resources.getColor(R.color.black))
+                binding.rvShowTransaction.visibility = View.GONE
+                binding.rvShowExpenses.visibility = View.VISIBLE
                 tvExpenses.setTextColor(resources.getColor(R.color.button_active))
+                tvIncome.setTextColor(resources.getColor(R.color.black))
                 viewModel.expensesTransaction.observe(viewLifecycleOwner, Observer { list ->
                     list?.let {
-                        for(i in 0..list.size-1){
-                            tvTransactionList.append("," + list.get(i).value.toString())
-                        }
+                        adapter2.data = it
                     }
                 })
+                Log.e("Click","Expenses")
             }
 
             tvIncome.setOnClickListener {
-                tvTransactionList.text = ""
-                tvIncome.setTextColor(resources.getColor(R.color.button_active))
                 tvExpenses.setTextColor(resources.getColor(R.color.black))
+                tvIncome.setTextColor(resources.getColor(R.color.button_active))
+                binding.rvShowTransaction.visibility = View.VISIBLE
+                binding.rvShowExpenses.visibility = View.GONE
+
                 viewModel.incomeTransaction.observe(viewLifecycleOwner, Observer { list ->
                     list?.let {
-                        for(i in 0..list.size-1){
-                            tvTransactionList.append("," + list.get(i).value.toString())
-                        }
+                        adapter1.data = it
                     }
                 })
+
+                Log.e("Click","Income")
             }
         }
 
