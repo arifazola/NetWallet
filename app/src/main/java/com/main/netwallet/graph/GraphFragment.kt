@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,12 +12,15 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.main.netwallet.R
 import com.main.netwallet.database.NetWalletDatabase
 import com.main.netwallet.databinding.FragmentGraphBinding
@@ -33,7 +37,7 @@ private const val ARG_PARAM2 = "param2"
  * Use the [GraphFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class GraphFragment : Fragment() {
+class GraphFragment : Fragment(), OnChartValueSelectedListener {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -85,13 +89,42 @@ class GraphFragment : Fragment() {
         val viewModel =
             ViewModelProvider(this, viewModelFactory).get(HomeFragmentViewModel::class.java)
 
-        val chart : LineChart = binding.chart
-        val kasus = ArrayList<Entry>()
+        /**
+         * Bar Chart
+        var chart : BarChart = binding.chart
+        initBarChart(chart)
+        val bar = ArrayList<BarEntry>()
+        val data = ArrayList<Double>()
 
+        for(i in 0..6){
+            data.add(i * 100.0)
+        }
+
+        for(i in 0..data.size-1){
+            val barEntry = BarEntry(i.toFloat(), data.get(i).toFloat())
+            bar.add(barEntry)
+
+        }
+
+        val barDataSet = BarDataSet(bar, "Test Bar")
+        initBarDataSet(barDataSet)
+        val barData = BarData(barDataSet)
+        chart.data = barData
+        chart.invalidate()
+        **/
+
+
+
+
+        /**
+         * Line Chart
+         * */
+        val chart : LineChart = binding.chart
+        val expenses = ArrayList<Entry>()
         viewModel.expensesTransaction.observe(viewLifecycleOwner, Observer { list ->
             list?.let {
-                for(i in 0..list.size-1){
-                    kasus.add(Entry(i.toFloat(), list.get(i).value!!.toFloat()))
+                for (i in 0..list.size - 1) {
+                    expenses.add(Entry(i.toFloat(), list.get(i).value!!.toFloat()))
 //                    kasus.add(Entry(2F, list.get(1).value!!.toFloat()))
 //                    kasus.add(Entry(3F, list.get(2).value!!.toFloat()))
 //                    kasus.add(Entry(4F, list.get(3).value!!.toFloat()))
@@ -100,24 +133,45 @@ class GraphFragment : Fragment() {
 
                 }
             }
-            val kasusLineDataSet = LineDataSet(kasus, "Kasus")
-            kasusLineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-            kasusLineDataSet.color = Color.BLUE
-            kasusLineDataSet.circleRadius = 5f
-            kasusLineDataSet.setCircleColor(Color.BLUE)
+            val expensesLineDataSet = LineDataSet(expenses, "Expenses")
+            expensesLineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+            expensesLineDataSet.color = Color.BLUE
+            expensesLineDataSet.circleRadius = 5f
+            expensesLineDataSet.setCircleColor(Color.BLUE)
 
-            val legend = chart.legend
-            legend.isEnabled = true
-            legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP)
-            legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER)
-            legend.setOrientation(Legend.LegendOrientation.HORIZONTAL)
-            legend.setDrawInside(false)
+            val income = ArrayList<Entry>()
+            viewModel.incomeTransaction.observe(viewLifecycleOwner, Observer { list ->
+                list?.let {
+                    for (i in 0..list.size - 1) {
+                        income.add(Entry(i.toFloat(), list.get(i).value!!.toFloat()))
+//                    kasus.add(Entry(2F, list.get(1).value!!.toFloat()))
+//                    kasus.add(Entry(3F, list.get(2).value!!.toFloat()))
+//                    kasus.add(Entry(4F, list.get(3).value!!.toFloat()))
+//                    kasus.add(Entry(5F, list.get(4).value!!.toFloat()))
+//                    kasus.add(Entry(6F, list.get(5).value!!.toFloat()))
 
-            chart.description.isEnabled = false
-            chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
-            chart.data = LineData(kasusLineDataSet)
-            chart.animateXY(100, 500)
+                    }
+                }
+                val incomeLineDataSet = LineDataSet(income, "Income")
+                incomeLineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+                incomeLineDataSet.color = Color.RED
+                incomeLineDataSet.circleRadius = 5f
+                incomeLineDataSet.setCircleColor(Color.RED)
+
+                val legend = chart.legend
+                legend.isEnabled = true
+                legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP)
+                legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER)
+                legend.setOrientation(Legend.LegendOrientation.HORIZONTAL)
+                legend.setDrawInside(false)
+
+                chart.description.isEnabled = false
+                chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
+                chart.data = LineData(expensesLineDataSet, incomeLineDataSet)
+                chart.animateXY(100, 500)
+            })
         })
+
 
 
 //        val kasus = ArrayList<Entry>()
@@ -154,23 +208,52 @@ class GraphFragment : Fragment() {
         return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment GraphFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            GraphFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    private fun initBarDataSet(barDataSet : BarDataSet){
+        barDataSet.setColor(Color.RED)
+        barDataSet.formSize = 15F
+        barDataSet.setDrawValues(false)
+        barDataSet.valueTextSize = 12F
+    }
+
+    private fun initBarChart(chart: BarChart){
+        chart.setDrawGridBackground(false)
+        chart.setDrawBarShadow(false)
+        chart.setDrawBorders(false)
+
+        val description = Description()
+        description.isEnabled = false
+        chart.description = description
+
+        chart.animateY(1000)
+        chart.animateX(1000)
+
+        val xAxis : XAxis = chart.xAxis
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.granularity = 1f
+        xAxis.setDrawAxisLine(false)
+        xAxis.setDrawGridLines(false)
+
+        val letftAxis : YAxis = chart.axisLeft
+        letftAxis.setDrawAxisLine(false)
+
+        val rightAxis : YAxis = chart.axisRight
+        rightAxis.setDrawAxisLine(false)
+
+        val legend = chart.legend
+        legend.form = Legend.LegendForm.CIRCLE
+        legend.textSize = 11f
+        legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+        legend.horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+        legend.orientation = Legend.LegendOrientation.HORIZONTAL
+        legend.setDrawInside(false)
+
+    }
+
+    override fun onValueSelected(e: Entry?, h: Highlight?) {
+        Log.e("Bar Clicked", "Bar Click")
+    }
+
+    override fun onNothingSelected() {
+
     }
 }

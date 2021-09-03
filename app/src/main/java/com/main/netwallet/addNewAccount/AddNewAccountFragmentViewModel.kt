@@ -31,7 +31,7 @@ class AddNewAccountFragmentViewModel(datasource : NetWalletDatabaseDao, applicat
 //        }
 //    }
 
-    fun firstTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String, bankDetails: String){
+    fun firstTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: Long, bankDetails: String){
         viewModelScope.launch {
             insertFirstTransaction(email, value, transactionType, details, walletType, currency, date, bankDetails)
         }
@@ -58,7 +58,7 @@ class AddNewAccountFragmentViewModel(datasource : NetWalletDatabaseDao, applicat
         database.insertCurrency(currency, hasInitialized, email)
     }
 
-    private suspend fun insertFirstTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String, bankDetails: String){
+    private suspend fun insertFirstTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: Long, bankDetails: String){
         database.firstInitialize(email, value, transactionType, details, walletType, currency, date, bankDetails)
     }
 

@@ -86,8 +86,11 @@ class MainActivity : AppCompatActivity() {
         val application = requireNotNull(this).application
         val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
         val todayDate: String =
-            SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
-        val viewModelProvider = ReminderFragementViewModelFactory(dataSource, application, getEmail.toString(), todayDate)
+            SimpleDateFormat("dd MM yyyy", Locale.getDefault()).format(Date())
+        val dateFormat = SimpleDateFormat("dd MM yyyy")
+        val mDate : Date = dateFormat.parse(todayDate)
+        val dateInMili = mDate.time
+        val viewModelProvider = ReminderFragementViewModelFactory(dataSource, application, getEmail.toString(), dateInMili)
         val viewModel = ViewModelProvider(this, viewModelProvider).get(ReminderFragementViewModel::class.java)
 
         viewModel.getReminderDate.observe(this, Observer { list->
@@ -97,13 +100,17 @@ class MainActivity : AppCompatActivity() {
                    val getReminderDate = list.get(0).getReminderDate
                     val compare = getReminderDate.equals(todayDate)
 
-                   if (getReminderDate == todayDate) {
+                     //convert dateToday and date from database from Long to date
+                     val todayDateConvert = SimpleDateFormat("dd/MM/yyyy").format(Date(dateInMili))
+                     val dateDatabaseConvert = SimpleDateFormat("dd/MM/yyyy").format(getReminderDate)
+
+                   if (dateDatabaseConvert == todayDateConvert) {
                        val toNotifFragment = intent.getStringExtra("toNotifFragment")
                        val goToReminder = intent.getStringExtra("TransactionReminderFragment")
                        if (!toNotifFragment.equals("NotifFragment") && !goToReminder.equals("GoToReminderFragment")){
                            notif("You Have Pending Transaction", list.get(0).getReminderDetails)
                        }
-                       Log.e("Notif", getReminderDate)
+                       Log.e("Notif", getReminderDate.toString())
                        Log.e("Notif", todayDate)
                        Log.e("Notif", compare.toString())
                    }

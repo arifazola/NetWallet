@@ -131,7 +131,10 @@ class AddNewAccountFragment : Fragment() , AdapterView.OnItemSelectedListener{
             val accountTypeVal = accountTypeSpinner.selectedItem.toString()
             val currencyVal = currencySpinner.selectedItem.toString()
             val balance = binding.etInputBalance.text.toString()
-            val date : String = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+            val date : String = SimpleDateFormat("dd MM yyyy", Locale.getDefault()).format(Date())
+            val dateConvert = SimpleDateFormat("dd MM yyyy")
+            val mDate : Date = dateConvert.parse(date)
+            val dateToMili = mDate.time
             val bankDetails = binding.spBankDetails.text.toString()
 
             if (balance.isBlank()) {
@@ -146,7 +149,7 @@ class AddNewAccountFragment : Fragment() , AdapterView.OnItemSelectedListener{
                     "Account Opening",
                     accountTypeVal,
                     currencyVal,
-                    date,
+                    dateToMili,
                     bankDetails
                 )
 //                viewModel.updateHasInitialized(true)

@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.main.netwallet.database.NetWalletDatabaseDao
 import kotlinx.coroutines.launch
 
-class ReminderFragementViewModel(dataSource: NetWalletDatabaseDao, application: Application, email: String, date: String) : ViewModel() {
+class ReminderFragementViewModel(dataSource: NetWalletDatabaseDao, application: Application, email: String, date: Long) : ViewModel() {
 
     val database = dataSource
 
@@ -18,14 +18,14 @@ class ReminderFragementViewModel(dataSource: NetWalletDatabaseDao, application: 
     val doneShowingToast : LiveData<Boolean>
         get() = _doneShowingToast
 
-    fun addReminder(email: String, reminderDate: String, reminderDetails: String){
+    fun addReminder(email: String, reminderDate: Long, reminderDetails: String){
         viewModelScope.launch {
             insertReminder(email, reminderDate, reminderDetails)
             _doneShowingToast.value = true
         }
     }
 
-    suspend fun insertReminder(email: String, reminderDate: String, reminderDetails: String){
+    suspend fun insertReminder(email: String, reminderDate: Long, reminderDetails: String){
         database.addReminder(email, reminderDate, reminderDetails)
     }
 

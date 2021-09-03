@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.main.netwallet.database.NetWalletDatabaseDao
 import kotlinx.coroutines.launch
 
-class GetDateViewModel (dataSource: NetWalletDatabaseDao, application: Application, email: String, date: String) : ViewModel() {
+class GetDateViewModel (dataSource: NetWalletDatabaseDao, application: Application, email: String, date: Long) : ViewModel() {
 
     val database = dataSource
 

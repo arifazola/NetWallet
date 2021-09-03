@@ -25,18 +25,6 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
-            android:id="@+id/etSetDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:ems="10"
-            android:hint="@string/date_reminder"
-            android:inputType="date"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvSetReminder" />
-
-        <EditText
             android:id="@+id/etReminderDetails"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -46,7 +34,7 @@
             android:inputType="textPersonName"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/etSetDate" />
+            app:layout_constraintTop_toBottomOf="@+id/etMonth" />
 
         <Button
             android:id="@+id/btSetReminder"
@@ -59,6 +47,42 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/etReminderDetails" />
+
+        <EditText
+            android:id="@+id/etDay"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:ems="10"
+            android:hint="@string/day"
+            android:inputType="number"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.27"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvSetReminder" />
+
+        <EditText
+            android:id="@+id/etMonth"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:ems="10"
+            android:hint="@string/month"
+            android:inputType="number"
+            app:layout_constraintBaseline_toBaselineOf="@+id/etDay"
+            app:layout_constraintStart_toEndOf="@+id/etDay" />
+
+        <EditText
+            android:id="@+id/etYear"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:ems="10"
+            android:hint="@string/year"
+            android:inputType="number"
+            app:layout_constraintBaseline_toBaselineOf="@+id/etMonth"
+            app:layout_constraintStart_toEndOf="@+id/etMonth" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

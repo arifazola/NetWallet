@@ -38,11 +38,11 @@ interface NetWalletDatabaseDao {
 
     //Query For First Intialization account
     @Query("Insert Into transaction_history (email, value, transaction_type, details, wallet_type, currency, date, bank_account_name) Values(:email,:value, :transactionType, :details ,:walletType, :currency, :date, :bankDetails)")
-    suspend fun firstInitialize(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String, bankDetails: String)
+    suspend fun firstInitialize(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: Long, bankDetails: String)
 
     //Query for adding transaction
     @Query("Insert Into transaction_history (email, value, transaction_type, details, wallet_type, currency, date, bank_account_name) Values(:email, :value, :transactionType, :details, :walletType, :currency, :date, :bankDetails)")
-    suspend fun addTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String, bankDetails: String)
+    suspend fun addTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: Long, bankDetails: String)
 
     @Query("Select Sum(value) as value, transaction_type as total from transaction_history where email=:email AND wallet_type=:walletType group by transaction_type")
     fun sumTransaction(email: String, walletType: String) : LiveData<List<SumTransaction>>
@@ -65,11 +65,11 @@ interface NetWalletDatabaseDao {
 
     //Query to input reminder
     @Query("Insert Into reminder_table (email, reminder_date, reminder_details, status) VALUES(:email, :reminderDate, :reminderDetails,'active')")
-    suspend fun addReminder(email: String, reminderDate: String, reminderDetails: String)
+    suspend fun addReminder(email: String, reminderDate: Long, reminderDetails: String)
 
     //Query to get reminder date
     @Query("Select reminder_date, reminder_details from reminder_table WHERE email=:email AND reminder_date=:date AND status='active'")
-    fun getReminderDate(email: String, date: String) : LiveData<List<GetReminderDate>>
+    fun getReminderDate(email: String, date: Long) : LiveData<List<GetReminderDate>>
 
     //Query to update reminder
     @Query("Update reminder_table set status='inactive' Where email=:email")

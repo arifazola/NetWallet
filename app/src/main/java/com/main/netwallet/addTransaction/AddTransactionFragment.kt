@@ -86,9 +86,12 @@ class AddTransactionFragment : Fragment(), AdapterView.OnItemSelectedListener {
             val value = binding.etInputValue.text.toString()
             val transactionType = transactionTypeSpinner.selectedItem.toString()
             val details = binding.etDetailTransaction.text.toString()
-            val date : String = SimpleDateFormat("dd/MM/yyy", Locale.getDefault()).format(Date())
+            val date : String = SimpleDateFormat("dd MM yyy", Locale.getDefault()).format(Date())
+            val dateConvert = SimpleDateFormat("dd MM yyyy")
+            val mDate : Date = dateConvert.parse(date)
+            val dateToMili = mDate.time
 
-            viewModel.addTransaction(getEmailPref.toString(), value.toLong(), transactionType, details, walletTypePreference.toString(), currencyPreference.toString(), date, bankAccountNamePreference.toString())
+            viewModel.addTransaction(getEmailPref.toString(), value.toLong(), transactionType, details, walletTypePreference.toString(), currencyPreference.toString(), dateToMili, bankAccountNamePreference.toString())
 
             viewModel.doneShowingToast.observe(viewLifecycleOwner, Observer {
                 if(it == true){

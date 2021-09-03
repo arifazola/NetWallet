@@ -72,7 +72,7 @@ import java.util.*
         val currency: String?,
 
         @ColumnInfo(name = "date")
-        val date: String,
+        val date: Long,
 
         @ColumnInfo(name = "bank_account_name")
         val bankAccountName: String?
@@ -90,7 +90,7 @@ import java.util.*
         val email: String?,
 
         @ColumnInfo(name = "reminder_date")
-        val date: String?,
+        val date: Long?,
 
         @ColumnInfo(name = "reminder_details")
         val reminderDetails: String?,
@@ -125,7 +125,7 @@ import java.util.*
 
     data class GetReminderDate(
         @ColumnInfo(name = "reminder_date")
-        val getReminderDate: String,
+        val getReminderDate: Long,
 
         @ColumnInfo(name = "reminder_details")
         val getReminderDetails: String
@@ -143,7 +143,10 @@ import java.util.*
         val transactionType: String?,
 
         @ColumnInfo(name = "details")
-        val details: String?
+        val details: String?,
+
+        @ColumnInfo(name = "date")
+        val date: Long?
     )
 
     data class ExpensesTransaction(
@@ -157,5 +160,8 @@ import java.util.*
         val transactionType: String?,
 
         @ColumnInfo(name = "details")
-        val details: String?
+        val details: String?,
+
+        @ColumnInfo(name = "date")
+        val date: Long?
     )

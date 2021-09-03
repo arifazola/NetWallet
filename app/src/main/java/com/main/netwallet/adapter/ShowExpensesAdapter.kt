@@ -10,6 +10,8 @@ import com.main.netwallet.R
 import com.main.netwallet.database.IncomeTransaction
 import androidx.recyclerview.widget.ListAdapter
 import com.main.netwallet.database.ExpensesTransaction
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ShowExpensesAdapter : RecyclerView.Adapter<ShowExpensesAdapter.myHolder>() {
 
@@ -28,9 +30,11 @@ class ShowExpensesAdapter : RecyclerView.Adapter<ShowExpensesAdapter.myHolder>()
     override fun onBindViewHolder(holder: myHolder, position: Int) {
         val item = data[position]
         val res = holder.itemView.context.resources
+        val dateFormatter : String = SimpleDateFormat("dd/MM/yyyy").format(Date(item.date!!))
         holder.value.text = item.value.toString()
         holder.transactionType.text = item.transactionType.toString()
         holder.transactionDetails.text = item.details.toString()
+        holder.transactionDate.text = dateFormatter
     }
 
     override fun getItemCount(): Int = data?.size
@@ -43,5 +47,6 @@ class ShowExpensesAdapter : RecyclerView.Adapter<ShowExpensesAdapter.myHolder>()
         val value = itemView.findViewById<TextView>(R.id.valueList)
         val transactionType = itemView.findViewById<TextView>(R.id.transactionTypeList)
         val transactionDetails = itemView.findViewById<TextView>(R.id.transactionDetailsList)
+        val transactionDate = itemView.findViewById<TextView>(R.id.tvDate)
     }
 }

@@ -20,7 +20,7 @@ class TransactionNotificationViewModel(dataSource : NetWalletDatabaseDao, applic
     val doneShowingToast : LiveData<Boolean>
         get() = _doneShowingToast
 
-    fun addTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String, bankDetails: String){
+    fun addTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: Long, bankDetails: String){
         viewModelScope.launch {
             insertAddTransaction(email, value, transactionType, details, walletType, currency, date, bankDetails)
             _doneNavigating.value = true
@@ -29,7 +29,7 @@ class TransactionNotificationViewModel(dataSource : NetWalletDatabaseDao, applic
         }
     }
 
-    private suspend fun insertAddTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: String, bankDetails: String){
+    private suspend fun insertAddTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: Long, bankDetails: String){
         database.addTransaction(email, value, transactionType, details, walletType, currency, date, bankDetails)
     }
 

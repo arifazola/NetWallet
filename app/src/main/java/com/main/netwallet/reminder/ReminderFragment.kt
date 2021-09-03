@@ -50,21 +50,27 @@ class ReminderFragment : Fragment() {
         sharedPreferenceEmail = requireActivity().getSharedPreferences(PREF_KEY_EMAIL, Context.MODE_PRIVATE)
         val getEmail = sharedPreferenceEmail.getString("email_preference", null)
         val binding = DataBindingUtil.inflate<FragmentReminderBinding>(inflater, R.layout.fragment_reminder, container, false)
-        val reminderDate = binding.etSetDate.text.toString()
-        val application = requireNotNull(this.activity).application
-        val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
-        val viewModelProvider = ReminderFragementViewModelFactory(dataSource, application, getEmail.toString(), reminderDate)
-        val viewModel = ViewModelProvider(this, viewModelProvider).get(ReminderFragementViewModel::class.java)
-        binding.reminder = viewModel
+//        val reminderDate = binding.etSetDate.text.toString()
 
         val btnSetReminder = binding.btSetReminder
 
         btnSetReminder.setOnClickListener {
+            val reminderDay = binding.etDay.text
+            val reminderMonth = binding.etMonth.text
+            val reminderYear = binding.etYear.text
+            val date = "$reminderDay $reminderMonth $reminderYear"
+            val dateFormat = SimpleDateFormat("dd MM yyyy")
+            val mDate : Date = dateFormat.parse(date)
+            val convertToMili = mDate.time
+            val application = requireNotNull(this.activity).application
+            val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
+            val viewModelProvider = ReminderFragementViewModelFactory(dataSource, application, getEmail.toString(), convertToMili)
+            val viewModel = ViewModelProvider(this, viewModelProvider).get(ReminderFragementViewModel::class.java)
+            binding.reminder = viewModel
             val email = getEmail.toString()
-            val reminderDate = binding.etSetDate.text.toString()
             val reminderDetails = binding.etReminderDetails.text.toString()
 
-            viewModel.addReminder(email, reminderDate, reminderDetails)
+            viewModel.addReminder(email, convertToMili, reminderDetails)
 
             viewModel.doneShowingToast.observe(viewLifecycleOwner, Observer{
                 if(it == true){
