@@ -217,6 +217,18 @@
                       </LayoutPositions>
                     </value>
                   </entry>
+                  <entry key="pieChartFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="-1856" />
+                            <option name="y" value="-624" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
                   <entry key="registerFragment">
                     <value>
                       <LayoutPositions>

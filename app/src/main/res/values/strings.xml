@@ -67,5 +67,10 @@
     <string name="day">Day</string>
     <string name="month">Month</string>
     <string name="year">Year</string>
+    <string name="today">Today</string>
+    <string name="last_seven_days">Last Seven Days</string>
+    <string name="last_thirty_days">Last 30 Days</string>
+    <string name="custom">Custom Filter</string>
+    <string name="last_five_transaction">See Full Transaction</string>
 </resources>
 

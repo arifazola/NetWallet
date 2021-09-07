@@ -108,6 +108,10 @@ class HomeFragment : Fragment() {
 //            val tvExpenses = binding.tvExpenses
             val tvBalance = binding.tvBalance
 
+            val addTransaction = binding.addTransaction
+
+            val tvSeeFullTransaction = binding.tvToGraph
+
             val adapter1 = ShowTransactionAdapter()
 
             val adapter2 = ShowExpensesAdapter()
@@ -186,6 +190,14 @@ class HomeFragment : Fragment() {
                 })
 
                 Log.e("Click","Income")
+            }
+
+            tvSeeFullTransaction.setOnClickListener {
+                findNavController().navigate(R.id.graphFragment)
+            }
+
+            addTransaction.setOnClickListener {
+                findNavController().navigate(R.id.addTransactionFragment)
             }
         }
 

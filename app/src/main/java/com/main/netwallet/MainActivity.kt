@@ -49,11 +49,11 @@ class MainActivity : AppCompatActivity() {
 
         //add bottomNavigation
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bn_main)
-        val fab = findViewById<FloatingActionButton>(R.id.fab)
-
-        fab.setOnClickListener {
-            findNavController(R.id.navHostFragment).navigate(R.id.addTransactionFragment)
-        }
+//        val fab = findViewById<FloatingActionButton>(R.id.fab)
+//
+//        fab.setOnClickListener {
+//            findNavController(R.id.navHostFragment).navigate(R.id.addTransactionFragment)
+//        }
 
         bottomNavigationView.setOnItemSelectedListener(mOnNavigationItemSelectedListener)
 
@@ -63,21 +63,21 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if(destination.id == R.id.loginFragment){
                 bottomNavigationView.visibility = View.GONE
-                fab.visibility = View.GONE
+//                fab.visibility = View.GONE
             }else if(destination.id == R.id.registerFragment){
                 bottomNavigationView.visibility = View.GONE
-                fab.visibility = View.GONE
+//                fab.visibility = View.GONE
             }else if(destination.id == R.id.initialSettingFragment) {
                 bottomNavigationView.visibility = View.GONE
-                fab.visibility = View.GONE
+//                fab.visibility = View.GONE
             }else if(destination.id == R.id.addTransactionFragment){
-                fab.visibility = View.GONE
+//                fab.visibility = View.GONE
             }else if(destination.id == R.id.transactionNotificationFragment) {
                 bottomNavigationView.visibility = View.GONE
-                fab.visibility = View.GONE
+//                fab.visibility = View.GONE
             }else{
                 bottomNavigationView.visibility = View.VISIBLE
-                fab.visibility = View.VISIBLE
+//                fab.visibility = View.VISIBLE
             }
         }
 
