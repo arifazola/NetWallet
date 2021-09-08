@@ -28,6 +28,8 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.Utils.init
 import com.main.netwallet.R
+import com.main.netwallet.adapter.ShowExpensesAdapter
+import com.main.netwallet.adapter.ShowTransactionAdapter
 import com.main.netwallet.database.NetWalletDatabase
 import com.main.netwallet.databinding.FragmentGraphBinding
 import com.main.netwallet.home.HomeFragmentViewModel
@@ -49,7 +51,7 @@ private const val ARG_PARAM2 = "param2"
  * Use the [GraphFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class GraphFragment : Fragment(), OnChartValueSelectedListener {
+class GraphFragment : Fragment(){
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -57,11 +59,11 @@ class GraphFragment : Fragment(), OnChartValueSelectedListener {
     val PREF_KEY_EMAIL = "email preference"
     val PREFS_KEY_LOGIN = "login preference"
     lateinit var emailSharedPreferences: SharedPreferences
-    lateinit var sharedPreferencesAccountWallet : SharedPreferences
-    lateinit var sharedPreferencesLogin : SharedPreferences
-    lateinit var binding : FragmentGraphBinding
-    var from : Long = 0L
-    var to : Long = 0L
+    lateinit var sharedPreferencesAccountWallet: SharedPreferences
+    lateinit var sharedPreferencesLogin: SharedPreferences
+    lateinit var binding: FragmentGraphBinding
+    var from: Long = 0L
+    var to: Long = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,30 +79,49 @@ class GraphFragment : Fragment(), OnChartValueSelectedListener {
         savedInstanceState: Bundle?
     ): View? {
 
-        sharedPreferencesAccountWallet =
-            requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
-        emailSharedPreferences =
-            requireActivity().getSharedPreferences(PREF_KEY_EMAIL, Context.MODE_PRIVATE)
-        sharedPreferencesLogin =
-            requireActivity().getSharedPreferences(PREFS_KEY_LOGIN, Context.MODE_PRIVATE)
-
-        binding = DataBindingUtil.inflate<FragmentGraphBinding>(inflater, R.layout.fragment_graph, container, false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_graph, container, false)
 
         val addTransaction = binding.addTransaction
 
+        val tvSeeFullTransaction = binding.tvToGraph
+
         today()
 
-        addTransaction.setOnClickListener{
-            findNavController().navigate(R.id.addTransactionFragment)
+        tvSeeFullTransaction.setOnClickListener {
+            findNavController().navigate(R.id.graphFragment)
         }
 
-        Log.e("Init", "GraphFragment called")
-        Log.e("Init", "ViewModel called")
+        addTransaction.setOnClickListener {
+            findNavController().navigate(R.id.addTransactionFragment)
+        }
         return binding.root
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun today(){
+        emailSharedPreferences = requireActivity().getSharedPreferences(PREF_KEY_EMAIL, Context.MODE_PRIVATE)
+        sharedPreferencesAccountWallet = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
+        sharedPreferencesLogin = requireActivity().getSharedPreferences(PREFS_KEY_LOGIN, Context.MODE_PRIVATE)
+        val getEmail = emailSharedPreferences.getString("email_preference", null)
+        val getWalletType = sharedPreferencesAccountWallet.getString("wallet_type", null)
+        val currencyPreference = sharedPreferencesAccountWallet.getString("currency", null)
+        val bankAccountNamePreference =
+            sharedPreferencesAccountWallet.getString("bank_account_name", null)
+        val application = requireNotNull(this.activity).application
+        val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
+        val viewModelFactory = HomeFragmentViewModelFactory(
+            dataSource,
+            application,
+            getEmail.toString(),
+            getWalletType.toString()
+        )
+        val viewModel =
+            ViewModelProvider(this, viewModelFactory).get(HomeFragmentViewModel::class.java)
+        val tvBalance = binding.tvBalance
+
+        val adapter1 = ShowTransactionAdapter()
+
+        val adapter2 = ShowExpensesAdapter()
 
         val tvToday = binding.tvToday
         val tvLastSevenDays = binding.tvLastSevenDays
@@ -120,83 +141,67 @@ class GraphFragment : Fragment(), OnChartValueSelectedListener {
 
         to = todayMili
 
-        val lastSevenDays = LocalDate.now().minusWeeks(1)
-        val formatter = DateTimeFormatter.ofPattern("dd MM yyyy")
-        val dateFormatter = lastSevenDays.format(formatter)
-        val simpleDateFormat = SimpleDateFormat("dd MM yyyy")
-        val mDateSevenDays = simpleDateFormat.parse(dateFormatter)
-        val sevenDaysInMili = mDateSevenDays.time
+        viewModel.setFromAndTo(to, null)
+        viewModel.resultToday()
 
-        from = sevenDaysInMili
+        binding.rvShowTransaction.adapter = adapter1
+        binding.rvShowExpenses.adapter = adapter2
 
-        val getEmail = emailSharedPreferences.getString("email_preference", null)
-        val getWalletType = sharedPreferencesAccountWallet.getString("wallet_type", null)
-        val application = requireNotNull(this.activity).application
-        val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
-        val viewModelFactory = GraphViewModelFactory(
-            dataSource,
-            application,
-            getEmail.toString(),
-            getWalletType.toString(),
-        )
-        val viewModel =
-            ViewModelProvider(this, viewModelFactory).get(GraphViewModel::class.java)
-
-        viewModel.setFromAndTo(todayMili,null)
-
-        viewModel.resultTodayTransaction()
-
-//        viewModel.from = sevenDaysInMili
-//        viewModel.to = todayMili
-//
-        val chart : LineChart = binding.chart
-        val expenses = ArrayList<Entry>()
-        viewModel.todayExpenses.observe(viewLifecycleOwner, Observer { list ->
+        viewModel.totalTransaction.observe(viewLifecycleOwner, Observer { list ->
             list?.let {
-                for (i in 0..list.size - 1) {
-                    expenses.add(Entry(i.toFloat(), list.get(0)!!.value!!.toFloat()))
-                    Log.e("Result Expenses $i", list.get(i)!!.value!!.toString())
-                }
-            }
-//        })
-            val expensesLineDataSet = LineDataSet(expenses, "Expenses")
-            expensesLineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-            expensesLineDataSet.color = Color.BLUE
-            expensesLineDataSet.circleRadius = 5f
-            expensesLineDataSet.setCircleColor(Color.BLUE)
 
-            val income = ArrayList<Entry>()
-            viewModel.todayIncome.observe(viewLifecycleOwner, Observer { list ->
-                list?.let {
-                    for (i in 0..list.size - 1) {
-                        income.add(Entry(i.toFloat(), list.get(i)!!.value!!.toFloat()))
-                        Log.e("Result Income $i", list.get(i)!!.value!!.toString())
+                for (i in 0..list.size - 1) {
+                    if (i == 1) {
+                        val sumBalance =
+                            list.get(1).value.toString().toLong() - list.get(0).value.toString()
+                                .toLong()
+                        tvBalance.text = sumBalance.toString()
+                    } else {
+//                            tvIncome.text = list.get(0).value.toString()
+//                            tvExpenses.text = "0"
+                        val sumBalance = list.get(0).value.toString().toLong()
+                        tvBalance.text = sumBalance.toString()
                     }
                 }
-//            })
-                val incomeLineDataSet = LineDataSet(income, "Income")
-                incomeLineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-                incomeLineDataSet.color = Color.RED
-                incomeLineDataSet.circleRadius = 5f
-                incomeLineDataSet.setCircleColor(Color.RED)
-
-                val legend = chart.legend
-                legend.isEnabled = true
-                legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP)
-                legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER)
-                legend.setOrientation(Legend.LegendOrientation.HORIZONTAL)
-                legend.setDrawInside(false)
-
-                chart.description.isEnabled = false
-                chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
-                chart.data = LineData(expensesLineDataSet, incomeLineDataSet)
-                chart.animateXY(100, 500)
-            })
+            }
         })
 
-        viewModel.resetToday()
-        viewModel.resetLastWeek()
-        viewModel.resetThirtyDays()
+        viewModel.todayIncome.observe(viewLifecycleOwner, Observer { list ->
+            list?.let {
+                adapter1.data = it
+            }
+        })
+
+        val tvIncome = binding.textView6
+        val tvExpenses = binding.textView10
+
+        tvExpenses.setOnClickListener {
+            binding.rvShowTransaction.visibility = View.GONE
+            binding.rvShowExpenses.visibility = View.VISIBLE
+            tvExpenses.setTextColor(resources.getColor(R.color.button_active))
+            tvIncome.setTextColor(resources.getColor(R.color.black))
+            viewModel.todayExpenses.observe(viewLifecycleOwner, Observer { list ->
+                list?.let {
+                    adapter2.data = it
+                }
+            })
+            Log.e("Click", "Expenses")
+        }
+
+        tvIncome.setOnClickListener {
+            tvExpenses.setTextColor(resources.getColor(R.color.black))
+            tvIncome.setTextColor(resources.getColor(R.color.button_active))
+            binding.rvShowTransaction.visibility = View.VISIBLE
+            binding.rvShowExpenses.visibility = View.GONE
+
+            viewModel.todayIncome.observe(viewLifecycleOwner, Observer { list ->
+                list?.let {
+                    adapter1.data = it
+                }
+            })
+
+            Log.e("Click", "Income")
+        }
 
         tvToday.setOnClickListener { false }
         tvLastSevenDays.setOnClickListener { lastSevenDays() }
@@ -206,6 +211,30 @@ class GraphFragment : Fragment(), OnChartValueSelectedListener {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun lastSevenDays(){
+        emailSharedPreferences = requireActivity().getSharedPreferences(PREF_KEY_EMAIL, Context.MODE_PRIVATE)
+        sharedPreferencesAccountWallet = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
+        sharedPreferencesLogin = requireActivity().getSharedPreferences(PREFS_KEY_LOGIN, Context.MODE_PRIVATE)
+        val getEmail = emailSharedPreferences.getString("email_preference", null)
+        val getWalletType = sharedPreferencesAccountWallet.getString("wallet_type", null)
+        val currencyPreference = sharedPreferencesAccountWallet.getString("currency", null)
+        val bankAccountNamePreference =
+            sharedPreferencesAccountWallet.getString("bank_account_name", null)
+        val application = requireNotNull(this.activity).application
+        val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
+        val viewModelFactory = HomeFragmentViewModelFactory(
+            dataSource,
+            application,
+            getEmail.toString(),
+            getWalletType.toString()
+        )
+        val viewModel =
+            ViewModelProvider(this, viewModelFactory).get(HomeFragmentViewModel::class.java)
+        val tvBalance = binding.tvBalance
+
+        val adapter1 = ShowTransactionAdapter()
+
+        val adapter2 = ShowExpensesAdapter()
+
         val tvToday = binding.tvToday
         val tvLastSevenDays = binding.tvLastSevenDays
         val tvLastThirtyDays = binding.tvLastThirtyDays
@@ -231,84 +260,72 @@ class GraphFragment : Fragment(), OnChartValueSelectedListener {
         val mDateSevenDays = simpleDateFormat.parse(dateFormatter)
         val sevenDaysInMili = mDateSevenDays.time
 
-        val getEmail = emailSharedPreferences.getString("email_preference", null)
-        val getWalletType = sharedPreferencesAccountWallet.getString("wallet_type", null)
-        val application = requireNotNull(this.activity).application
-        val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
-        val viewModelFactory = GraphViewModelFactory(
-            dataSource,
-            application,
-            getEmail.toString(),
-            getWalletType.toString(),
-        )
-        val viewModel =
-            ViewModelProvider(this, viewModelFactory).get(GraphViewModel::class.java)
-
         from = sevenDaysInMili
 
-        viewModel.setFromAndTo(sevenDaysInMili, todayMili)
+        viewModel.setFromAndTo(from, to)
+        viewModel.resultLastSevenDays()
 
-        viewModel.result()
+        binding.rvShowTransaction.adapter = adapter1
+        binding.rvShowExpenses.adapter = adapter2
 
-        val chart : LineChart = binding.chart
-        val expenses = ArrayList<Entry>()
-        val dateExpenses = ArrayList<String>()
-        viewModel.lastSevenDaysExpenses.observe(viewLifecycleOwner, Observer { list ->
+        viewModel.totalTransaction.observe(viewLifecycleOwner, Observer { list ->
             list?.let {
+
                 for (i in 0..list.size - 1) {
-                    expenses.add(Entry(i.toFloat(), list.get(i)!!.value!!.toFloat()))
-                    Log.e("Result Expenses $i", list.get(i)!!.value!!.toString())
-                }
-                for(i in 0..list.size - 1){
-                    val dateFormatter : String = SimpleDateFormat("dd MMM").format(Date(list.get(i)!!.date!!))
-                    dateExpenses.add(dateFormatter)
+                    if (i == 1) {
+                        val sumBalance =
+                            list.get(1).value.toString().toLong() - list.get(0).value.toString()
+                                .toLong()
+                        tvBalance.text = sumBalance.toString()
+                    } else {
+//                            tvIncome.text = list.get(0).value.toString()
+//                            tvExpenses.text = "0"
+                        val sumBalance = list.get(0).value.toString().toLong()
+                        tvBalance.text = sumBalance.toString()
+                    }
                 }
             }
-            val expensesLineDataSet = LineDataSet(expenses, "Expenses")
-            expensesLineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-            expensesLineDataSet.color = Color.BLUE
-            expensesLineDataSet.circleRadius = 5f
-            expensesLineDataSet.setCircleColor(Color.BLUE)
-
-            val income = ArrayList<Entry>()
-            val dateIncome = ArrayList<String>()
-            viewModel.lastSevenDaysIncome.observe(viewLifecycleOwner, Observer { list ->
-                list?.let {
-                    for (i in 0..list.size - 1) {
-                        income.add(Entry(i.toFloat(), list.get(i)!!.value!!.toFloat()))
-                        Log.e("Result Income $i", list.get(i)!!.value!!.toString())
-                    }
-                    for(i in 0..list.size - 1){
-                        val dateFormatter : String = SimpleDateFormat("dd MMM").format(Date(list.get(i)!!.date!!))
-                        dateIncome.add(dateFormatter)
-                    }
-                }
-                val incomeLineDataSet = LineDataSet(income, "Income")
-                incomeLineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-                incomeLineDataSet.color = Color.RED
-                incomeLineDataSet.circleRadius = 5f
-                incomeLineDataSet.setCircleColor(Color.RED)
-
-                val legend = chart.legend
-                legend.isEnabled = true
-                legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP)
-                legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER)
-                legend.setOrientation(Legend.LegendOrientation.HORIZONTAL)
-                legend.setDrawInside(false)
-
-                chart.description.isEnabled = false
-                chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
-                chart.data = LineData(expensesLineDataSet, incomeLineDataSet)
-                chart.animateXY(100, 500)
-
-                val date = AxisDateFormatter(dateExpenses.toArray(arrayOfNulls<String>(dateExpenses.size)))
-                chart.xAxis.valueFormatter = date
-            })
         })
 
-        viewModel.resetToday()
-        viewModel.resetLastWeek()
-        viewModel.resetThirtyDays()
+        viewModel.lastSevenDaysIncome.observe(viewLifecycleOwner, Observer { list ->
+            list?.let {
+                adapter1.data = it
+            }
+        })
+
+        val tvIncome = binding.textView6
+        val tvExpenses = binding.textView10
+
+        tvExpenses.setOnClickListener {
+            binding.rvShowTransaction.visibility = View.GONE
+            binding.rvShowExpenses.visibility = View.VISIBLE
+            tvExpenses.setTextColor(resources.getColor(R.color.button_active))
+            tvIncome.setTextColor(resources.getColor(R.color.black))
+            viewModel.lastSevenDaysExpenses.observe(viewLifecycleOwner, Observer { list ->
+                list?.let {
+                    adapter2.data = it
+                }
+            })
+            Log.e("Click", "Expenses")
+        }
+
+        tvIncome.setOnClickListener {
+            tvExpenses.setTextColor(resources.getColor(R.color.black))
+            tvIncome.setTextColor(resources.getColor(R.color.button_active))
+            binding.rvShowTransaction.visibility = View.VISIBLE
+            binding.rvShowExpenses.visibility = View.GONE
+
+            viewModel.lastSevenDaysIncome.observe(viewLifecycleOwner, Observer { list ->
+                list?.let {
+                    adapter1.data = it
+                }
+            })
+
+            Log.e("Click", "Income")
+        }
+
+//        viewModel.resultToday()
+//        viewModel.resetLastWeek()
 
         tvToday.setOnClickListener { today() }
         tvLastSevenDays.setOnClickListener { false }
@@ -317,6 +334,30 @@ class GraphFragment : Fragment(), OnChartValueSelectedListener {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun lastThirtyDays(){
+        emailSharedPreferences = requireActivity().getSharedPreferences(PREF_KEY_EMAIL, Context.MODE_PRIVATE)
+        sharedPreferencesAccountWallet = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
+        sharedPreferencesLogin = requireActivity().getSharedPreferences(PREFS_KEY_LOGIN, Context.MODE_PRIVATE)
+        val getEmail = emailSharedPreferences.getString("email_preference", null)
+        val getWalletType = sharedPreferencesAccountWallet.getString("wallet_type", null)
+        val currencyPreference = sharedPreferencesAccountWallet.getString("currency", null)
+        val bankAccountNamePreference =
+            sharedPreferencesAccountWallet.getString("bank_account_name", null)
+        val application = requireNotNull(this.activity).application
+        val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
+        val viewModelFactory = HomeFragmentViewModelFactory(
+            dataSource,
+            application,
+            getEmail.toString(),
+            getWalletType.toString()
+        )
+        val viewModel =
+            ViewModelProvider(this, viewModelFactory).get(HomeFragmentViewModel::class.java)
+        val tvBalance = binding.tvBalance
+
+        val adapter1 = ShowTransactionAdapter()
+
+        val adapter2 = ShowExpensesAdapter()
+
         val tvToday = binding.tvToday
         val tvLastSevenDays = binding.tvLastSevenDays
         val tvLastThirtyDays = binding.tvLastThirtyDays
@@ -342,109 +383,75 @@ class GraphFragment : Fragment(), OnChartValueSelectedListener {
         val mDateSevenDays = simpleDateFormat.parse(dateFormatter)
         val sevenDaysInMili = mDateSevenDays.time
 
-        val getEmail = emailSharedPreferences.getString("email_preference", null)
-        val getWalletType = sharedPreferencesAccountWallet.getString("wallet_type", null)
-        val application = requireNotNull(this.activity).application
-        val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
-        val viewModelFactory = GraphViewModelFactory(
-            dataSource,
-            application,
-            getEmail.toString(),
-            getWalletType.toString(),
-        )
-        val viewModel =
-            ViewModelProvider(this, viewModelFactory).get(GraphViewModel::class.java)
-
         from = sevenDaysInMili
 
-        viewModel.setFromAndTo(sevenDaysInMili, todayMili)
+        viewModel.setFromAndTo(from, to)
+        viewModel.resultLastThirtyDays()
 
-        viewModel.resultLastThirtyDaysTransaction()
+        binding.rvShowTransaction.adapter = adapter1
+        binding.rvShowExpenses.adapter = adapter2
 
-        val chart : LineChart = binding.chart
-        val expenses = ArrayList<Entry>()
-        val dateExpenses = ArrayList<String>()
-        viewModel.lastThirtyDaysExpenses.observe(viewLifecycleOwner, Observer { list ->
+        viewModel.totalTransaction.observe(viewLifecycleOwner, Observer { list ->
             list?.let {
+
                 for (i in 0..list.size - 1) {
-                    expenses.add(Entry(i.toFloat(), list.get(i)!!.value!!.toFloat()))
-                    Log.e("Result Expenses $i", list.get(i)!!.value!!.toString())
-                }
-                for(i in 0..list.size - 1){
-                    val dateFormatter : String = SimpleDateFormat("dd MMM").format(Date(list.get(i)!!.date!!))
-                    dateExpenses.add(dateFormatter)
+                    if (i == 1) {
+                        val sumBalance =
+                            list.get(1).value.toString().toLong() - list.get(0).value.toString()
+                                .toLong()
+                        tvBalance.text = sumBalance.toString()
+                    } else {
+//                            tvIncome.text = list.get(0).value.toString()
+//                            tvExpenses.text = "0"
+                        val sumBalance = list.get(0).value.toString().toLong()
+                        tvBalance.text = sumBalance.toString()
+                    }
                 }
             }
-            val expensesLineDataSet = LineDataSet(expenses, "Expenses")
-            expensesLineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-            expensesLineDataSet.color = Color.BLUE
-            expensesLineDataSet.circleRadius = 5f
-            expensesLineDataSet.setCircleColor(Color.BLUE)
-
-            val income = ArrayList<Entry>()
-            val dateIncome = ArrayList<String>()
-            viewModel.lastThirtyDaysIncome.observe(viewLifecycleOwner, Observer { list ->
-                list?.let {
-                    for (i in 0..list.size - 1) {
-                        income.add(Entry(i.toFloat(), list.get(i)!!.value!!.toFloat()))
-                        Log.e("Result Income $i", list.get(i)!!.value!!.toString())
-                    }
-                    for(i in 0..list.size - 1){
-                        val dateFormatter : String = SimpleDateFormat("dd MMM").format(Date(list.get(i)!!.date!!))
-                        dateIncome.add(dateFormatter)
-                    }
-                }
-                val incomeLineDataSet = LineDataSet(income, "Income")
-                incomeLineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-                incomeLineDataSet.color = Color.RED
-                incomeLineDataSet.circleRadius = 5f
-                incomeLineDataSet.setCircleColor(Color.RED)
-
-                val legend = chart.legend
-                legend.isEnabled = true
-                legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP)
-                legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER)
-                legend.setOrientation(Legend.LegendOrientation.HORIZONTAL)
-                legend.setDrawInside(false)
-
-                chart.description.isEnabled = false
-                chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
-                chart.data = LineData(expensesLineDataSet, incomeLineDataSet)
-                chart.animateXY(100, 500)
-
-                val date = AxisDateFormatter(dateExpenses.toArray(arrayOfNulls<String>(dateExpenses.size)))
-                chart.xAxis.valueFormatter = date
-            })
         })
 
-        viewModel.resetToday()
-        viewModel.resetLastWeek()
-        viewModel.resetThirtyDays()
+        viewModel.lastThirtyDaysIncome.observe(viewLifecycleOwner, Observer { list ->
+            list?.let {
+                adapter1.data = it
+            }
+        })
+
+        val tvIncome = binding.textView6
+        val tvExpenses = binding.textView10
+
+        tvExpenses.setOnClickListener {
+            binding.rvShowTransaction.visibility = View.GONE
+            binding.rvShowExpenses.visibility = View.VISIBLE
+            tvExpenses.setTextColor(resources.getColor(R.color.button_active))
+            tvIncome.setTextColor(resources.getColor(R.color.black))
+            viewModel.lastThirtyDaysExpenses.observe(viewLifecycleOwner, Observer { list ->
+                list?.let {
+                    adapter2.data = it
+                }
+            })
+            Log.e("Click", "Expenses")
+        }
+
+        tvIncome.setOnClickListener {
+            tvExpenses.setTextColor(resources.getColor(R.color.black))
+            tvIncome.setTextColor(resources.getColor(R.color.button_active))
+            binding.rvShowTransaction.visibility = View.VISIBLE
+            binding.rvShowExpenses.visibility = View.GONE
+
+            viewModel.lastThirtyDaysIncome.observe(viewLifecycleOwner, Observer { list ->
+                list?.let {
+                    adapter1.data = it
+                }
+            })
+
+            Log.e("Click", "Income")
+        }
+
+//        viewModel.resetToday()
+//        viewModel.resetLastWeek()
 
         tvToday.setOnClickListener { today() }
         tvLastSevenDays.setOnClickListener { lastSevenDays() }
         tvLastThirtyDays.setOnClickListener { false }
-    }
-
-    override fun onValueSelected(e: Entry?, h: Highlight?) {
-        Log.e("Bar Clicked", "Bar Click")
-    }
-
-    override fun onNothingSelected() {
-
-    }
-}
-
-class AxisDateFormatter(private val mValue : Array<String>) : ValueFormatter(){
-    override fun getFormattedValue(value: Float): String {
-        return if(value >= 0){
-            if(mValue.size > value.toInt()){
-                mValue[value.toInt()]
-            }else{
-                ""
-            }
-        }else{
-            ""
-        }
     }
 }

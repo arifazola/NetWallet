@@ -29,8 +29,8 @@ class ShowTransactionAdapter : RecyclerView.Adapter<ShowTransactionAdapter.myHol
     override fun onBindViewHolder(holder: myHolder, position: Int) {
             val item = data[position]
             val res = holder.itemView.context.resources
-            val dateFormatter : String = SimpleDateFormat("dd/MM/yyyy").format(Date(item.date!!))
-            holder.value.text = item.value.toString()
+            val dateFormatter : String = SimpleDateFormat("dd/MM/yyyy").format(Date(item!!.date!!))
+            holder.value.text = item!!.value.toString()
             holder.transactionType.text = item.transactionType.toString()
             holder.transactionDetails.text = item.details.toString()
             holder.transactionDate.text = dateFormatter

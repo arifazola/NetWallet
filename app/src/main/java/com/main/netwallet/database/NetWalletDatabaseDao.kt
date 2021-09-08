@@ -47,13 +47,29 @@ interface NetWalletDatabaseDao {
     @Query("Select Sum(value) as value, transaction_type as total from transaction_history where email=:email AND wallet_type=:walletType group by transaction_type")
     fun sumTransaction(email: String, walletType: String) : LiveData<List<SumTransaction>>
 
-    //Query to show Income transaction
-    @Query("Select * from transaction_history where wallet_type=:walletType AND email=:email AND transaction_type='Income' Order by Date Desc, ID Desc limit 5")
-    fun getIncomeTransaction(walletType: String, email:String) : LiveData<List<IncomeTransaction>>
+    //Query to show Today Income transaction HomeFragment
+    @Query("Select * from transaction_history where wallet_type=:walletType AND email=:email AND transaction_type='Income' And date=:from Order by Date Desc, ID Desc")
+    suspend fun getIncomeTransactionToday(walletType: String, email:String, from: Long) : List<IncomeTransaction>
 
-    //Query to show Expenses transaction
-    @Query("Select * from transaction_history where wallet_type=:walletType AND email=:email AND transaction_type='Expenses' Order By Date Desc, ID Desc Limit 5")
-    fun getExpensesTransaction(walletType: String, email: String) : LiveData<List<ExpensesTransaction>>
+    //Query to show Today Expenses transaction Home Fragment
+    @Query("Select * from transaction_history where wallet_type=:walletType AND email=:email AND transaction_type='Expenses' And date=:from Order By Date Desc, ID Desc")
+    suspend fun getExpensesTransactionToday(walletType: String, email: String, from: Long) : List<ExpensesTransaction>
+
+    //Query to show Last 7 Days Income transaction HomeFragment
+    @Query("Select * from transaction_history where wallet_type=:walletType AND email=:email AND transaction_type='Income' And date Between :from AND :to Order by Date Desc, ID Desc")
+    suspend fun getIncomeTransactionLastSevenDays(walletType: String, email:String, from: Long, to: Long) : List<IncomeTransaction>
+
+    //Query to show Last 7 Days Expenses transaction Home Fragment
+    @Query("Select * from transaction_history where wallet_type=:walletType AND email=:email AND transaction_type='Expenses' And date Between :from AND :to Order By Date Desc, ID Desc")
+    suspend fun getExpensesTransactionLastSevenDays(walletType: String, email: String, from: Long, to: Long) : List<ExpensesTransaction>
+
+    //Query to show Last 7 Days Income transaction HomeFragment
+    @Query("Select * from transaction_history where wallet_type=:walletType AND email=:email AND transaction_type='Income' And date Between :from AND :to Order by Date Desc, ID Desc")
+    suspend fun getIncomeTransactionLastThirtyDays(walletType: String, email:String, from: Long, to: Long) : List<IncomeTransaction>
+
+    //Query to show Last 7 Days Expenses transaction Home Fragment
+    @Query("Select * from transaction_history where wallet_type=:walletType AND email=:email AND transaction_type='Expenses' And date Between :from AND :to Order By Date Desc, ID Desc")
+    suspend fun getExpensesTransactionLastThirtyDays(walletType: String, email: String, from: Long, to: Long) : List<ExpensesTransaction>
 
     //Query to show all account type
     @Query("Select wallet_type from transaction_history where details='Account Opening' AND email=:email")
@@ -104,22 +120,22 @@ interface NetWalletDatabaseDao {
     suspend fun sumTodayIncome(walletType: String, email: String, from: Long) : List<IncomeTransaction>
 
     //Query to get sum last 7 days income
-    @Query("Select id, email, Sum(value) as value, transaction_type, details, wallet_type, currency, date, bank_account_name from transaction_history where wallet_type=:walletType AND email =:email AND date BETWEEN :from AND :to AND transaction_type ='Income' group by transaction_type")
+    @Query("Select Sum(value) as value, transaction_type from transaction_history where wallet_type=:walletType AND email =:email AND date BETWEEN :from AND :to group by transaction_type")
     suspend fun sumLastSevenDaysIncome(walletType: String, email:String, from: Long, to: Long) : List<IncomeTransaction>
 
     //Query to get sum last 30 days income
-    @Query("Select id, email, Sum(value) as value, transaction_type, details, wallet_type, currency, date, bank_account_name from transaction_history where wallet_type=:walletType AND email =:email AND date BETWEEN :from AND :to AND transaction_type ='Income' group by transaction_type")
+    @Query("Select Sum(value) as value, transaction_type from transaction_history where wallet_type=:walletType AND email =:email AND date BETWEEN :from AND :to group by transaction_type")
     suspend fun sumLastThirtyDaysIncome(walletType: String, email:String, from: Long, to: Long) : List<IncomeTransaction>
 
     // Query to get sum today expenses
     @Query("Select id, email, Sum(value) as value, transaction_type, details, wallet_type, currency, date, bank_account_name from transaction_history where wallet_type=:walletType AND email =:email AND date=:from AND transaction_type ='Expenses' group by transaction_type")
-    suspend fun sumTodayExpenses(walletType: String, email: String, from: Long) : List<IncomeTransaction>
+    suspend fun sumTodayExpenses(walletType: String, email: String, from: Long) : List<ExpensesTransaction>
 
     //Query to get sum last 7 days expenses
-    @Query("Select id, email, Sum(value) as value, transaction_type, details, wallet_type, currency, date, bank_account_name from transaction_history where wallet_type=:walletType AND email =:email AND date BETWEEN :from AND :to AND transaction_type ='Expenses' group by transaction_type")
-    suspend fun sumLastSevenDaysExpenses(walletType: String, email:String, from: Long, to: Long) : List<IncomeTransaction>
+    @Query("Select Sum(value) as value from transaction_history where wallet_type=:walletType AND email =:email AND date BETWEEN :from AND :to AND transaction_type ='Expenses' group by transaction_type")
+    suspend fun sumLastSevenDaysExpenses(walletType: String, email:String, from: Long, to: Long) : List<ExpensesTransaction>
 
     //Query to get sum last 30 days expenses
     @Query("Select id, email, Sum(value) as value, transaction_type, details, wallet_type, currency, date, bank_account_name from transaction_history where wallet_type=:walletType AND email =:email AND date BETWEEN :from AND :to AND transaction_type ='Expenses' group by transaction_type")
-    suspend fun sumLastThirtyDaysExpenses(walletType: String, email:String, from: Long, to: Long) : List<IncomeTransaction>
+    suspend fun sumLastThirtyDaysExpenses(walletType: String, email:String, from: Long, to: Long) : List<ExpensesTransaction>
 }

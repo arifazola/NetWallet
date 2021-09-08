@@ -3,20 +3,18 @@ package com.main.netwallet.graph
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import com.github.mikephil.charting.charts.LineChart
+import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.charts.PieChart
-import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.data.PieEntry
 import com.main.netwallet.R
 import com.main.netwallet.databinding.FragmentPieChartBinding
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -47,76 +45,63 @@ class PieChartFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val binding = DataBindingUtil.inflate<FragmentPieChartBinding>(inflater, R.layout.fragment_pie_chart, container, false)
-        val chart : LineChart = binding.chart
+        val chart : PieChart = binding.chart
 
-        val kasus = ArrayList<Entry>()
-        kasus.add(Entry(0F, 149F))
-        kasus.add(Entry(1F, 113F))
-        kasus.add(Entry(2F, 196F))
-        kasus.add(Entry(3F, 106F))
-        kasus.add(Entry(4F, 181F))
-        kasus.add(Entry(5F, 218F))
-        kasus.add(Entry(6F, 247F))
-        kasus.add(Entry(7F, 218F))
-        kasus.add(Entry(8F, 337F))
-        kasus.add(Entry(9F, 219F))
+        val pieEntries: ArrayList<PieEntry> = ArrayList()
+        val label = "type"
 
-        val sembuh = ArrayList<Entry>()
-        sembuh.add(Entry(0F, 22F))
-        sembuh.add(Entry(1F, 9F))
-        sembuh.add(Entry(2F, 22F))
-        sembuh.add(Entry(3F, 16F))
-        sembuh.add(Entry(4F, 14F))
-        sembuh.add(Entry(5F, 28F))
-        sembuh.add(Entry(6F, 12F))
-        sembuh.add(Entry(7F, 18F))
-        sembuh.add(Entry(8F, 30F))
-        sembuh.add(Entry(9F, 30F))
+        //initializing data
 
-        val meninggal = ArrayList<Entry>()
-        meninggal.add(Entry(0F, 21F))
-        meninggal.add(Entry(1F, 13F))
-        meninggal.add(Entry(2F, 11F))
-        meninggal.add(Entry(3F, 10F))
-        meninggal.add(Entry(4F, 7F))
-        meninggal.add(Entry(5F, 11F))
-        meninggal.add(Entry(6F, 12F))
-        meninggal.add(Entry(7F, 19F))
-        meninggal.add(Entry(8F, 40F))
-        meninggal.add(Entry(9F, 26F))
+        //initializing data
+        val typeAmountMap: MutableMap<String, Int> = HashMap()
+        typeAmountMap["Toys"] = 200
+        typeAmountMap["Snacks"] = 230
+        typeAmountMap["Clothes"] = 100
+        typeAmountMap["Stationary"] = 500
+        typeAmountMap["Phone"] = 50
 
-        val kasusLineDataSet = LineDataSet(kasus, "Kasus")
-        kasusLineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-        kasusLineDataSet.color = Color.BLUE
-        kasusLineDataSet.circleRadius = 5f
-        kasusLineDataSet.setCircleColor(Color.BLUE)
+        //initializing colors for the entries
 
-        val sembuhLineDataSet = LineDataSet(sembuh, "Sembuh")
-        sembuhLineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-        sembuhLineDataSet.color = Color.GREEN
-        sembuhLineDataSet.circleRadius = 5f
-        sembuhLineDataSet.setCircleColor(Color.GREEN)
+        //initializing colors for the entries
+        val colors: ArrayList<Int> = ArrayList()
+        colors.add(Color.parseColor("#304567"))
+        colors.add(Color.parseColor("#309967"))
+        colors.add(Color.parseColor("#476567"))
+        colors.add(Color.parseColor("#890567"))
+        colors.add(Color.parseColor("#a35567"))
+        colors.add(Color.parseColor("#ff5f67"))
+        colors.add(Color.parseColor("#3ca567"))
 
-        val meninggalLineDataSet = LineDataSet(meninggal, "Meninggal")
-        meninggalLineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-        meninggalLineDataSet.color = Color.RED
-        meninggalLineDataSet.circleRadius = 5f
-        meninggalLineDataSet.setCircleColor(Color.RED)
+        //input data and fit data into pie chart entry
 
-//Setup Legend
-        val legend = chart.legend
-        legend.isEnabled = true
-        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP)
-        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER)
-        legend.setOrientation(Legend.LegendOrientation.HORIZONTAL)
-        legend.setDrawInside(false)
+        //input data and fit data into pie chart entry
+        for (type in typeAmountMap.keys) {
+            pieEntries.add(PieEntry(typeAmountMap[type]!!.toFloat(), type))
+        }
 
-        chart.description.isEnabled = false
-        chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
-        chart.data = LineData(kasusLineDataSet, sembuhLineDataSet, meninggalLineDataSet)
-        chart.animateXY(100, 500)
+        Log.e("Keys", typeAmountMap["Toys"]!!.toString())
 
-        Log.e("ArrayKasus", kasus[1].toString())
+        //collecting the entries with label name
+
+        //collecting the entries with label name
+        val pieDataSet = PieDataSet(pieEntries, label)
+        //setting text size of the value
+        //setting text size of the value
+        pieDataSet.valueTextSize = 12f
+        //providing color list for coloring different entries
+        //providing color list for coloring different entries
+        pieDataSet.colors = colors
+        //grouping the data set from entry to chart
+        //grouping the data set from entry to chart
+        val pieData = PieData(pieDataSet)
+        //showing the value of the entries, default true if not set
+        //showing the value of the entries, default true if not set
+        pieData.setDrawValues(true)
+
+        chart.setData(pieData)
+        chart.invalidate()
+
+//        Log.e("ArrayKasus", kasus[1].toString())
 
         return binding.root
     }
