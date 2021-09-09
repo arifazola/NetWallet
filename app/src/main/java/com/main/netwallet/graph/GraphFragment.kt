@@ -51,6 +51,7 @@ private const val ARG_PARAM2 = "param2"
  * Use the [GraphFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+@RequiresApi(Build.VERSION_CODES.O)
 class GraphFragment : Fragment(){
     // TODO: Rename and change types of parameters
     private var param1: String? = null
@@ -99,6 +100,62 @@ class GraphFragment : Fragment(){
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun today(){
+        val tvToday = binding.tvToday
+        val tvLastSevenDays = binding.tvLastSevenDays
+        val tvLastThirtyDays = binding.tvLastThirtyDays
+
+        val tvIncome = binding.textView6
+        val tvExpenses = binding.textView10
+
+        todayIncome()
+        tvIncome.setOnClickListener { todayIncome() }
+        tvExpenses.setOnClickListener { todayExpenses() }
+
+
+
+        tvToday.setOnClickListener { false }
+        tvLastSevenDays.setOnClickListener { lastSevenDays() }
+        tvLastThirtyDays.setOnClickListener { lastThirtyDays() }
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun lastSevenDays(){
+        val tvToday = binding.tvToday
+        val tvLastSevenDays = binding.tvLastSevenDays
+        val tvLastThirtyDays = binding.tvLastThirtyDays
+
+        val tvIncome = binding.textView6
+        val tvExpenses = binding.textView10
+
+        lastSevenDaysIncome()
+        tvIncome.setOnClickListener { lastSevenDaysIncome() }
+        tvExpenses.setOnClickListener { lastSevenDaysExpenses() }
+
+        tvToday.setOnClickListener { today() }
+        tvLastSevenDays.setOnClickListener { false }
+        tvLastThirtyDays.setOnClickListener { lastThirtyDays() }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun lastThirtyDays(){
+        val tvToday = binding.tvToday
+        val tvLastSevenDays = binding.tvLastSevenDays
+        val tvLastThirtyDays = binding.tvLastThirtyDays
+
+        val tvIncome = binding.textView6
+        val tvExpenses = binding.textView10
+
+        lastThirtyDaysIncome()
+        tvIncome.setOnClickListener { lastThirtyDaysIncome() }
+        tvExpenses.setOnClickListener { lastThirtyDaysExpenses() }
+
+        tvToday.setOnClickListener { today() }
+        tvLastSevenDays.setOnClickListener { lastSevenDays() }
+        tvLastThirtyDays.setOnClickListener { false }
+    }
+
+    private fun todayIncome(){
         emailSharedPreferences = requireActivity().getSharedPreferences(PREF_KEY_EMAIL, Context.MODE_PRIVATE)
         sharedPreferencesAccountWallet = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
         sharedPreferencesLogin = requireActivity().getSharedPreferences(PREFS_KEY_LOGIN, Context.MODE_PRIVATE)
@@ -123,6 +180,14 @@ class GraphFragment : Fragment(){
 
         val adapter2 = ShowExpensesAdapter()
 
+        val today = SimpleDateFormat("dd MM yyyy").format(Date())
+        val dateFormat = SimpleDateFormat("dd MM yyyy")
+        val mDate = dateFormat.parse(today)
+        val todayMili = mDate.time
+
+        val tvIncome = binding.textView6
+        val tvExpenses = binding.textView10
+
         val tvToday = binding.tvToday
         val tvLastSevenDays = binding.tvLastSevenDays
         val tvLastThirtyDays = binding.tvLastThirtyDays
@@ -134,10 +199,88 @@ class GraphFragment : Fragment(){
         tvLastThirtyDays.setTextColor(Color.DKGRAY)
         tvLastThirtyDays.typeface = Typeface.DEFAULT
 
+        to = todayMili
+
+        viewModel.setFromAndTo(to, null)
+        viewModel.resultToday()
+
+        binding.rvShowTransaction.adapter = adapter1
+        binding.rvShowExpenses.adapter = adapter2
+
+        binding.rvShowTransaction.visibility = View.VISIBLE
+        binding.rvShowExpenses.visibility = View.GONE
+        tvExpenses.setTextColor(resources.getColor(R.color.black))
+        tvIncome.setTextColor(resources.getColor(R.color.button_active))
+
+        viewModel.totalTransaction.observe(viewLifecycleOwner, Observer { list ->
+            list?.let {
+
+                for (i in 0..list.size - 1) {
+                    if (i == 1) {
+                        val sumBalance =
+                            list.get(1).value.toString().toLong() - list.get(0).value.toString()
+                                .toLong()
+                        tvBalance.text = sumBalance.toString()
+                    } else {
+//                            tvIncome.text = list.get(0).value.toString()
+//                            tvExpenses.text = "0"
+                        val sumBalance = list.get(0).value.toString().toLong()
+                        tvBalance.text = sumBalance.toString()
+                    }
+                }
+            }
+        })
+
+        viewModel.todayIncome.observe(viewLifecycleOwner, Observer { list ->
+            list?.let {
+                adapter1.data = it
+            }
+        })
+    }
+
+    private fun todayExpenses(){
+        emailSharedPreferences = requireActivity().getSharedPreferences(PREF_KEY_EMAIL, Context.MODE_PRIVATE)
+        sharedPreferencesAccountWallet = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
+        sharedPreferencesLogin = requireActivity().getSharedPreferences(PREFS_KEY_LOGIN, Context.MODE_PRIVATE)
+        val getEmail = emailSharedPreferences.getString("email_preference", null)
+        val getWalletType = sharedPreferencesAccountWallet.getString("wallet_type", null)
+        val currencyPreference = sharedPreferencesAccountWallet.getString("currency", null)
+        val bankAccountNamePreference =
+            sharedPreferencesAccountWallet.getString("bank_account_name", null)
+        val application = requireNotNull(this.activity).application
+        val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
+        val viewModelFactory = HomeFragmentViewModelFactory(
+            dataSource,
+            application,
+            getEmail.toString(),
+            getWalletType.toString()
+        )
+        val viewModel =
+            ViewModelProvider(this, viewModelFactory).get(HomeFragmentViewModel::class.java)
+        val tvBalance = binding.tvBalance
+
+        val adapter1 = ShowTransactionAdapter()
+
+        val adapter2 = ShowExpensesAdapter()
+
         val today = SimpleDateFormat("dd MM yyyy").format(Date())
         val dateFormat = SimpleDateFormat("dd MM yyyy")
         val mDate = dateFormat.parse(today)
         val todayMili = mDate.time
+
+        val tvIncome = binding.textView6
+        val tvExpenses = binding.textView10
+
+        val tvToday = binding.tvToday
+        val tvLastSevenDays = binding.tvLastSevenDays
+        val tvLastThirtyDays = binding.tvLastThirtyDays
+
+        tvToday.setTextColor(resources.getColor(R.color.button_active))
+        tvToday.typeface = Typeface.DEFAULT_BOLD
+        tvLastSevenDays.setTextColor(Color.DKGRAY)
+        tvLastSevenDays.typeface = Typeface.DEFAULT
+        tvLastThirtyDays.setTextColor(Color.DKGRAY)
+        tvLastThirtyDays.typeface = Typeface.DEFAULT
 
         to = todayMili
 
@@ -166,51 +309,19 @@ class GraphFragment : Fragment(){
             }
         })
 
-        viewModel.todayIncome.observe(viewLifecycleOwner, Observer { list ->
+        binding.rvShowTransaction.visibility = View.GONE
+        binding.rvShowExpenses.visibility = View.VISIBLE
+        tvExpenses.setTextColor(resources.getColor(R.color.button_active))
+        tvIncome.setTextColor(resources.getColor(R.color.black))
+        viewModel.todayExpenses.observe(viewLifecycleOwner, Observer { list ->
             list?.let {
-                adapter1.data = it
+                adapter2.data = it
             }
         })
-
-        val tvIncome = binding.textView6
-        val tvExpenses = binding.textView10
-
-        tvExpenses.setOnClickListener {
-            binding.rvShowTransaction.visibility = View.GONE
-            binding.rvShowExpenses.visibility = View.VISIBLE
-            tvExpenses.setTextColor(resources.getColor(R.color.button_active))
-            tvIncome.setTextColor(resources.getColor(R.color.black))
-            viewModel.todayExpenses.observe(viewLifecycleOwner, Observer { list ->
-                list?.let {
-                    adapter2.data = it
-                }
-            })
-            Log.e("Click", "Expenses")
-        }
-
-        tvIncome.setOnClickListener {
-            tvExpenses.setTextColor(resources.getColor(R.color.black))
-            tvIncome.setTextColor(resources.getColor(R.color.button_active))
-            binding.rvShowTransaction.visibility = View.VISIBLE
-            binding.rvShowExpenses.visibility = View.GONE
-
-            viewModel.todayIncome.observe(viewLifecycleOwner, Observer { list ->
-                list?.let {
-                    adapter1.data = it
-                }
-            })
-
-            Log.e("Click", "Income")
-        }
-
-        tvToday.setOnClickListener { false }
-        tvLastSevenDays.setOnClickListener { lastSevenDays() }
-        tvLastThirtyDays.setOnClickListener { lastThirtyDays() }
-
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun lastSevenDays(){
+    private fun lastSevenDaysIncome(){
         emailSharedPreferences = requireActivity().getSharedPreferences(PREF_KEY_EMAIL, Context.MODE_PRIVATE)
         sharedPreferencesAccountWallet = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
         sharedPreferencesLogin = requireActivity().getSharedPreferences(PREFS_KEY_LOGIN, Context.MODE_PRIVATE)
@@ -251,6 +362,9 @@ class GraphFragment : Fragment(){
         val mDate = dateFormat.parse(today)
         val todayMili = mDate.time
 
+        val tvIncome = binding.textView6
+        val tvExpenses = binding.textView10
+
         to = todayMili
 
         val lastSevenDays = LocalDate.now().minusWeeks(1)
@@ -286,30 +400,6 @@ class GraphFragment : Fragment(){
                 }
             }
         })
-
-        viewModel.lastSevenDaysIncome.observe(viewLifecycleOwner, Observer { list ->
-            list?.let {
-                adapter1.data = it
-            }
-        })
-
-        val tvIncome = binding.textView6
-        val tvExpenses = binding.textView10
-
-        tvExpenses.setOnClickListener {
-            binding.rvShowTransaction.visibility = View.GONE
-            binding.rvShowExpenses.visibility = View.VISIBLE
-            tvExpenses.setTextColor(resources.getColor(R.color.button_active))
-            tvIncome.setTextColor(resources.getColor(R.color.black))
-            viewModel.lastSevenDaysExpenses.observe(viewLifecycleOwner, Observer { list ->
-                list?.let {
-                    adapter2.data = it
-                }
-            })
-            Log.e("Click", "Expenses")
-        }
-
-        tvIncome.setOnClickListener {
             tvExpenses.setTextColor(resources.getColor(R.color.black))
             tvIncome.setTextColor(resources.getColor(R.color.button_active))
             binding.rvShowTransaction.visibility = View.VISIBLE
@@ -322,18 +412,101 @@ class GraphFragment : Fragment(){
             })
 
             Log.e("Click", "Income")
-        }
-
-//        viewModel.resultToday()
-//        viewModel.resetLastWeek()
-
-        tvToday.setOnClickListener { today() }
-        tvLastSevenDays.setOnClickListener { false }
-        tvLastThirtyDays.setOnClickListener { lastThirtyDays() }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun lastThirtyDays(){
+    private fun lastSevenDaysExpenses(){
+        emailSharedPreferences = requireActivity().getSharedPreferences(PREF_KEY_EMAIL, Context.MODE_PRIVATE)
+        sharedPreferencesAccountWallet = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
+        sharedPreferencesLogin = requireActivity().getSharedPreferences(PREFS_KEY_LOGIN, Context.MODE_PRIVATE)
+        val getEmail = emailSharedPreferences.getString("email_preference", null)
+        val getWalletType = sharedPreferencesAccountWallet.getString("wallet_type", null)
+        val currencyPreference = sharedPreferencesAccountWallet.getString("currency", null)
+        val bankAccountNamePreference =
+            sharedPreferencesAccountWallet.getString("bank_account_name", null)
+        val application = requireNotNull(this.activity).application
+        val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
+        val viewModelFactory = HomeFragmentViewModelFactory(
+            dataSource,
+            application,
+            getEmail.toString(),
+            getWalletType.toString()
+        )
+        val viewModel =
+            ViewModelProvider(this, viewModelFactory).get(HomeFragmentViewModel::class.java)
+        val tvBalance = binding.tvBalance
+
+        val adapter1 = ShowTransactionAdapter()
+
+        val adapter2 = ShowExpensesAdapter()
+
+        val tvToday = binding.tvToday
+        val tvLastSevenDays = binding.tvLastSevenDays
+        val tvLastThirtyDays = binding.tvLastThirtyDays
+
+        tvToday.setTextColor(Color.DKGRAY)
+        tvToday.typeface = Typeface.DEFAULT
+        tvLastSevenDays.setTextColor(resources.getColor(R.color.button_active))
+        tvLastSevenDays.typeface = Typeface.DEFAULT_BOLD
+        tvLastThirtyDays.setTextColor(Color.DKGRAY)
+        tvLastThirtyDays.typeface = Typeface.DEFAULT
+
+        val today = SimpleDateFormat("dd MM yyyy").format(Date())
+        val dateFormat = SimpleDateFormat("dd MM yyyy")
+        val mDate = dateFormat.parse(today)
+        val todayMili = mDate.time
+
+        val tvIncome = binding.textView6
+        val tvExpenses = binding.textView10
+
+        to = todayMili
+
+        val lastSevenDays = LocalDate.now().minusWeeks(1)
+        val formatter = DateTimeFormatter.ofPattern("dd MM yyyy")
+        val dateFormatter = lastSevenDays.format(formatter)
+        val simpleDateFormat = SimpleDateFormat("dd MM yyyy")
+        val mDateSevenDays = simpleDateFormat.parse(dateFormatter)
+        val sevenDaysInMili = mDateSevenDays.time
+
+        from = sevenDaysInMili
+
+        viewModel.setFromAndTo(from, to)
+        viewModel.resultLastSevenDays()
+
+        binding.rvShowTransaction.adapter = adapter1
+        binding.rvShowExpenses.adapter = adapter2
+
+        viewModel.totalTransaction.observe(viewLifecycleOwner, Observer { list ->
+            list?.let {
+
+                for (i in 0..list.size - 1) {
+                    if (i == 1) {
+                        val sumBalance =
+                            list.get(1).value.toString().toLong() - list.get(0).value.toString()
+                                .toLong()
+                        tvBalance.text = sumBalance.toString()
+                    } else {
+//                            tvIncome.text = list.get(0).value.toString()
+//                            tvExpenses.text = "0"
+                        val sumBalance = list.get(0).value.toString().toLong()
+                        tvBalance.text = sumBalance.toString()
+                    }
+                }
+            }
+        })
+            binding.rvShowTransaction.visibility = View.GONE
+            binding.rvShowExpenses.visibility = View.VISIBLE
+            tvExpenses.setTextColor(resources.getColor(R.color.button_active))
+            tvIncome.setTextColor(resources.getColor(R.color.black))
+            viewModel.lastSevenDaysExpenses.observe(viewLifecycleOwner, Observer { list ->
+                list?.let {
+                    adapter2.data = it
+                }
+            })
+            Log.e("Click", "Expenses")
+    }
+
+    private fun lastThirtyDaysIncome(){
         emailSharedPreferences = requireActivity().getSharedPreferences(PREF_KEY_EMAIL, Context.MODE_PRIVATE)
         sharedPreferencesAccountWallet = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
         sharedPreferencesLogin = requireActivity().getSharedPreferences(PREFS_KEY_LOGIN, Context.MODE_PRIVATE)
@@ -383,6 +556,9 @@ class GraphFragment : Fragment(){
         val mDateSevenDays = simpleDateFormat.parse(dateFormatter)
         val sevenDaysInMili = mDateSevenDays.time
 
+        val tvIncome = binding.textView6
+        val tvExpenses = binding.textView10
+
         from = sevenDaysInMili
 
         viewModel.setFromAndTo(from, to)
@@ -410,48 +586,107 @@ class GraphFragment : Fragment(){
             }
         })
 
+        tvExpenses.setTextColor(resources.getColor(R.color.black))
+        tvIncome.setTextColor(resources.getColor(R.color.button_active))
+        binding.rvShowTransaction.visibility = View.VISIBLE
+        binding.rvShowExpenses.visibility = View.GONE
+
         viewModel.lastThirtyDaysIncome.observe(viewLifecycleOwner, Observer { list ->
             list?.let {
                 adapter1.data = it
             }
         })
 
+    }
+
+    private fun lastThirtyDaysExpenses(){
+        emailSharedPreferences = requireActivity().getSharedPreferences(PREF_KEY_EMAIL, Context.MODE_PRIVATE)
+        sharedPreferencesAccountWallet = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
+        sharedPreferencesLogin = requireActivity().getSharedPreferences(PREFS_KEY_LOGIN, Context.MODE_PRIVATE)
+        val getEmail = emailSharedPreferences.getString("email_preference", null)
+        val getWalletType = sharedPreferencesAccountWallet.getString("wallet_type", null)
+        val currencyPreference = sharedPreferencesAccountWallet.getString("currency", null)
+        val bankAccountNamePreference =
+            sharedPreferencesAccountWallet.getString("bank_account_name", null)
+        val application = requireNotNull(this.activity).application
+        val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
+        val viewModelFactory = HomeFragmentViewModelFactory(
+            dataSource,
+            application,
+            getEmail.toString(),
+            getWalletType.toString()
+        )
+        val viewModel =
+            ViewModelProvider(this, viewModelFactory).get(HomeFragmentViewModel::class.java)
+        val tvBalance = binding.tvBalance
+
+        val adapter1 = ShowTransactionAdapter()
+
+        val adapter2 = ShowExpensesAdapter()
+
+        val tvToday = binding.tvToday
+        val tvLastSevenDays = binding.tvLastSevenDays
+        val tvLastThirtyDays = binding.tvLastThirtyDays
+
+        tvToday.setTextColor(Color.DKGRAY)
+        tvToday.typeface = Typeface.DEFAULT
+        tvLastSevenDays.setTextColor(Color.DKGRAY)
+        tvLastSevenDays.typeface = Typeface.DEFAULT
+        tvLastThirtyDays.setTextColor(resources.getColor(R.color.button_active))
+        tvLastThirtyDays.typeface = Typeface.DEFAULT_BOLD
+
+        val today = SimpleDateFormat("dd MM yyyy").format(Date())
+        val dateFormat = SimpleDateFormat("dd MM yyyy")
+        val mDate = dateFormat.parse(today)
+        val todayMili = mDate.time
+
+        to = todayMili
+
+        val lastSevenDays = LocalDate.now().minusMonths(1)
+        val formatter = DateTimeFormatter.ofPattern("dd MM yyyy")
+        val dateFormatter = lastSevenDays.format(formatter)
+        val simpleDateFormat = SimpleDateFormat("dd MM yyyy")
+        val mDateSevenDays = simpleDateFormat.parse(dateFormatter)
+        val sevenDaysInMili = mDateSevenDays.time
+
         val tvIncome = binding.textView6
         val tvExpenses = binding.textView10
 
-        tvExpenses.setOnClickListener {
-            binding.rvShowTransaction.visibility = View.GONE
-            binding.rvShowExpenses.visibility = View.VISIBLE
-            tvExpenses.setTextColor(resources.getColor(R.color.button_active))
-            tvIncome.setTextColor(resources.getColor(R.color.black))
-            viewModel.lastThirtyDaysExpenses.observe(viewLifecycleOwner, Observer { list ->
-                list?.let {
-                    adapter2.data = it
+        from = sevenDaysInMili
+
+        viewModel.setFromAndTo(from, to)
+        viewModel.resultLastThirtyDays()
+
+        binding.rvShowTransaction.adapter = adapter1
+        binding.rvShowExpenses.adapter = adapter2
+
+        viewModel.totalTransaction.observe(viewLifecycleOwner, Observer { list ->
+            list?.let {
+
+                for (i in 0..list.size - 1) {
+                    if (i == 1) {
+                        val sumBalance =
+                            list.get(1).value.toString().toLong() - list.get(0).value.toString()
+                                .toLong()
+                        tvBalance.text = sumBalance.toString()
+                    } else {
+//                            tvIncome.text = list.get(0).value.toString()
+//                            tvExpenses.text = "0"
+                        val sumBalance = list.get(0).value.toString().toLong()
+                        tvBalance.text = sumBalance.toString()
+                    }
                 }
-            })
-            Log.e("Click", "Expenses")
-        }
+            }
+        })
 
-        tvIncome.setOnClickListener {
-            tvExpenses.setTextColor(resources.getColor(R.color.black))
-            tvIncome.setTextColor(resources.getColor(R.color.button_active))
-            binding.rvShowTransaction.visibility = View.VISIBLE
-            binding.rvShowExpenses.visibility = View.GONE
-
-            viewModel.lastThirtyDaysIncome.observe(viewLifecycleOwner, Observer { list ->
-                list?.let {
-                    adapter1.data = it
-                }
-            })
-
-            Log.e("Click", "Income")
-        }
-
-//        viewModel.resetToday()
-//        viewModel.resetLastWeek()
-
-        tvToday.setOnClickListener { today() }
-        tvLastSevenDays.setOnClickListener { lastSevenDays() }
-        tvLastThirtyDays.setOnClickListener { false }
+        binding.rvShowTransaction.visibility = View.GONE
+        binding.rvShowExpenses.visibility = View.VISIBLE
+        tvExpenses.setTextColor(resources.getColor(R.color.button_active))
+        tvIncome.setTextColor(resources.getColor(R.color.black))
+        viewModel.lastThirtyDaysExpenses.observe(viewLifecycleOwner, Observer { list ->
+            list?.let {
+                adapter2.data = it
+            }
+        })
     }
 }

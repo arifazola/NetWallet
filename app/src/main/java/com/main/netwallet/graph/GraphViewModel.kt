@@ -47,9 +47,9 @@ class GraphViewModel(dataSource: NetWalletDatabaseDao, application: Application,
     val lastThirtyDaysIncome : LiveData<List<IncomeTransaction?>?>
         get() = _lastThirtyDaysIncome
 
-    val _sumlastSevenDaysExpenses = MutableLiveData<List<ExpensesTransaction?>?>()
-    val sumlastSevenDaysExpenses : LiveData<List<ExpensesTransaction?>?>
-        get() = _sumlastSevenDaysExpenses
+    val _sumTodayIncome = MutableLiveData<List<IncomeTransaction?>?>()
+    val sumTodayIncome : LiveData<List<IncomeTransaction?>?>
+        get() = _sumTodayIncome
 
     val _sumlastSevenDaysIncome = MutableLiveData<List<IncomeTransaction?>?>()
     val sumlastSevenDaysIncome : LiveData<List<IncomeTransaction?>?>
@@ -80,6 +80,13 @@ class GraphViewModel(dataSource: NetWalletDatabaseDao, application: Application,
 //
 //        return getVal
 //    }
+
+    suspend fun sumTodayIncome(from: Long) : List<IncomeTransaction>{
+        val res = database.sumTodayIncome(walletParam, emailParam, from)
+        val getVal = res
+
+        return getVal
+    }
 
     suspend fun sumLastSevenDaysIncome(from: Long, to: Long) : List<IncomeTransaction?>{
         val res = database.sumLastSevenDaysIncome(walletParam, emailParam, from, to)
@@ -120,6 +127,7 @@ class GraphViewModel(dataSource: NetWalletDatabaseDao, application: Application,
         viewModelScope.launch {
             _todayExpenses.value = funcTodayExpenses(from)
             _todayIncome.value = funcTodayIncome(from)
+            _sumTodayIncome.value = sumTodayIncome(from)
         }
     }
 
@@ -153,6 +161,7 @@ class GraphViewModel(dataSource: NetWalletDatabaseDao, application: Application,
     fun resetToday(){
         _todayExpenses.value = null
         _todayIncome.value = null
+        _sumTodayIncome.value = null
     }
 
     fun resetLastWeek(){

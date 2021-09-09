@@ -116,7 +116,7 @@ interface NetWalletDatabaseDao {
     suspend fun getLastThirtyDaysExpensesTransaction(walletType: String, email:String, from: Long, to: Long) : List<ExpensesTransaction>
 
     // Query to get sum today income
-    @Query("Select id, email, Sum(value) as value, transaction_type, details, wallet_type, currency, date, bank_account_name from transaction_history where wallet_type=:walletType AND email =:email AND date=:from AND transaction_type ='Income' group by transaction_type")
+    @Query("Select Sum(value) as value, transaction_type from transaction_history where wallet_type=:walletType AND email =:email AND date=:from group by transaction_type")
     suspend fun sumTodayIncome(walletType: String, email: String, from: Long) : List<IncomeTransaction>
 
     //Query to get sum last 7 days income

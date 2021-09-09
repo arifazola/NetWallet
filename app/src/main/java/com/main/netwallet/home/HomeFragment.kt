@@ -254,6 +254,70 @@ class HomeFragment : Fragment() {
             })
         })
 
+        val pieChart : PieChart = binding.pieChartView
+
+        val label = ""
+
+        val pieEntries: ArrayList<PieEntry> = ArrayList()
+
+        //initializing data
+
+        //initializing data
+        viewModel.sumTodayIncome.observe(viewLifecycleOwner, Observer { list ->
+            list?.let {
+                val typeAmountMap: MutableMap<String, Int> = HashMap()
+                for(i in 0.. list.size -1) {
+                    if (i == 1) {
+                        typeAmountMap["Income"] = list.get(1)!!.value!!.toInt()
+                        typeAmountMap["Expenses"] = list.get(0)!!.value!!.toInt()
+                    } else {
+                        typeAmountMap["Income"] = list.get(0)!!.value!!.toInt()
+                    }
+                }
+
+                val colors: ArrayList<Int> = ArrayList()
+                colors.add(Color.RED)
+                colors.add(Color.parseColor("#009CFF"))
+
+                for (type in typeAmountMap.keys) {
+                    pieEntries.add(PieEntry(typeAmountMap[type]!!.toFloat(), type))
+                }
+
+                val pieDataSet = PieDataSet(pieEntries, label)
+                //setting text size of the value
+                //setting text size of the value
+                pieDataSet.valueTextSize = 14f
+                //providing color list for coloring different entries
+                //providing color list for coloring different entries
+                pieDataSet.colors = colors
+                //grouping the data set from entry to chart
+                //grouping the data set from entry to chart
+                val pieData = PieData(pieDataSet)
+                //showing the value of the entries, default true if not set
+                //showing the value of the entries, default true if not set
+                pieData.setValueFormatter(PercentFormatter(pieChart))
+                pieData.setDrawValues(true)
+
+                pieChart.setUsePercentValues(true)
+                pieChart.description.isEnabled = false
+                pieChart.dragDecelerationFrictionCoef = 0.9F
+                pieChart.rotationAngle = 0F
+                pieChart.animateY(1400, Easing.EaseInOutQuad)
+                pieChart.setHoleColor(Color.WHITE)
+
+                pieChart.setData(pieData)
+                pieChart.invalidate()
+            }
+        })
+
+
+
+
+
+        viewModel.resetToday()
+        viewModel.resetLastWeek()
+        viewModel.resetThirtyDays()
+
         viewModel.resetToday()
         viewModel.resetLastWeek()
         viewModel.resetThirtyDays()
