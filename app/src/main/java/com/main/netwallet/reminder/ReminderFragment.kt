@@ -58,8 +58,8 @@ class ReminderFragment : Fragment() {
             val reminderDay = binding.etDay.text
             val reminderMonth = binding.etMonth.text
             val reminderYear = binding.etYear.text
-            val date = "$reminderDay $reminderMonth $reminderYear"
-            val dateFormat = SimpleDateFormat("dd MM yyyy")
+            val date = "$reminderDay $reminderMonth $reminderYear 13:25:00"
+            val dateFormat = SimpleDateFormat("dd MM yyyy HH:mm:ss")
             val mDate : Date = dateFormat.parse(date)
             val convertToMili = mDate.time
             val application = requireNotNull(this.activity).application

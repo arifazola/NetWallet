@@ -442,12 +442,18 @@ class HomeFragment : Fragment() {
         viewModel.sumlastSevenDaysIncome.observe(viewLifecycleOwner, Observer { list ->
             list?.let {
                 val typeAmountMap: MutableMap<String, Int> = HashMap()
-                typeAmountMap["Income"] = list.get(1)!!.value!!.toInt()
-                typeAmountMap["Expenses"] = list.get(0)!!.value!!.toInt()
+                for(i in 0.. list.size -1) {
+                    if (i == 1) {
+                        typeAmountMap["Income"] = list.get(1)!!.value!!.toInt()
+                        typeAmountMap["Expenses"] = list.get(0)!!.value!!.toInt()
+                    } else {
+                        typeAmountMap["Income"] = list.get(0)!!.value!!.toInt()
+                    }
+                }
 
                 val colors: ArrayList<Int> = ArrayList()
-                colors.add(Color.parseColor("#009CFF"))
                 colors.add(Color.RED)
+                colors.add(Color.parseColor("#009CFF"))
 
                 for (type in typeAmountMap.keys) {
                     pieEntries.add(PieEntry(typeAmountMap[type]!!.toFloat(), type))
@@ -607,12 +613,18 @@ class HomeFragment : Fragment() {
         viewModel.sumlastThirtyDaysIncome.observe(viewLifecycleOwner, Observer { list ->
             list?.let {
                 val typeAmountMap: MutableMap<String, Int> = HashMap()
-                typeAmountMap["Income"] = list.get(1)!!.value!!.toInt()
-                typeAmountMap["Expenses"] = list.get(0)!!.value!!.toInt()
+                for(i in 0.. list.size -1) {
+                    if (i == 1) {
+                        typeAmountMap["Income"] = list.get(1)!!.value!!.toInt()
+                        typeAmountMap["Expenses"] = list.get(0)!!.value!!.toInt()
+                    } else {
+                        typeAmountMap["Income"] = list.get(0)!!.value!!.toInt()
+                    }
+                }
 
                 val colors: ArrayList<Int> = ArrayList()
-                colors.add(Color.parseColor("#009CFF"))
                 colors.add(Color.RED)
+                colors.add(Color.parseColor("#009CFF"))
 
                 for (type in typeAmountMap.keys) {
                     pieEntries.add(PieEntry(typeAmountMap[type]!!.toFloat(), type))

@@ -1,6 +1,7 @@
 package com.main.netwallet.setTransactionFromReminder
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -23,6 +24,7 @@ import com.main.netwallet.database.NetWalletDatabase
 import com.main.netwallet.databinding.FragmentAddTransactionBinding
 import com.main.netwallet.databinding.FragmentTransactionNotificationBinding
 import androidx.lifecycle.Observer
+import com.main.netwallet.MainActivity
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -105,7 +107,8 @@ class TransactionNotificationFragment : Fragment(), AdapterView.OnItemSelectedLi
             viewModel.doneShowingToast.observe(viewLifecycleOwner, Observer {
                 if(it == true){
                     Toast.makeText(context, "Successfully Added Data", Toast.LENGTH_SHORT)
-                    findNavController().navigate(R.id.homeFragment)
+                    val intent = Intent(context, MainActivity::class.java)
+                    startActivity(intent)
                     viewModel.doneNavigating()
                 }
             })
