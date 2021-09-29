@@ -1,5 +1,6 @@
 package com.main.netwallet
 
+import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -9,6 +10,15 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
+import com.main.netwallet.addTransaction.AddTransactionFragmentViewModel
+import com.main.netwallet.addTransaction.AddTransactionFragmentViewModelProvider
+import com.main.netwallet.database.NetWalletDatabase
+import com.main.netwallet.monthlyTransaction.SetMonthlyFragmentViewModel
+import com.main.netwallet.monthlyTransaction.SetMonthlyFragmentViewModelProvider
 
 fun makeStatusNotification(message: String, context: Context, titleNotif: String, ) {
 
@@ -44,4 +54,5 @@ fun makeStatusNotification(message: String, context: Context, titleNotif: String
     with(NotificationManagerCompat.from(context)){
         notify(1, notifBuilder)
     }
+
 }

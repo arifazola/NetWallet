@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -93,26 +94,30 @@ class TransactionNotificationFragment : Fragment(), AdapterView.OnItemSelectedLi
         transactionTypeSpinner.onItemSelectedListener = this
 
         binding.btnInput.setOnClickListener {
+            Log.e("Button Click Notif", "BUtton Click notif")
             val value = binding.etInputValue.text.toString()
             val transactionType = transactionTypeSpinner.selectedItem.toString()
             val details = binding.etDetailTransaction.text.toString()
-            val date : String = SimpleDateFormat("dd/MM/yyy", Locale.getDefault()).format(Date())
+            val date : String = SimpleDateFormat("dd MM yyy", Locale.getDefault()).format(Date())
             val dateConvert = SimpleDateFormat("dd MM yyyy")
             val mDate : Date = dateConvert.parse(date)
             val dateToMili = mDate.time
+
 
             viewModel.addTransaction(getEmailPref.toString(), value.toLong(), transactionType, details, walletTypePreference.toString(), currencyPreference.toString(), dateToMili, bankAccountNamePreference.toString())
             viewModel.updateReminder(getEmailPref.toString())
 
             viewModel.doneShowingToast.observe(viewLifecycleOwner, Observer {
                 if(it == true){
-                    Toast.makeText(context, "Successfully Added Data", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, "Successfully Added Data", Toast.LENGTH_SHORT).show()
                     val intent = Intent(context, MainActivity::class.java)
                     startActivity(intent)
                     viewModel.doneNavigating()
+//                    Toast.makeText(context, "Successfully Added Data", Toast.LENGTH_SHORT).show()
+//                    findNavController().navigate(AddTransactionFragmentDirections.actionAddTransactionFragmentToHomeFragment())
+//                    viewModel.doneNavigating()
                 }
             })
-
 
         }
         return binding.root

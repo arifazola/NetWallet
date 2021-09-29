@@ -262,6 +262,18 @@
                       </LayoutPositions>
                     </value>
                   </entry>
+                  <entry key="setMonthlyFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="-1801" />
+                            <option name="y" value="-2133" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
                   <entry key="settingsFragment">
                     <value>
                       <LayoutPositions>

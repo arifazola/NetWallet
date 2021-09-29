@@ -113,4 +113,9 @@
         android:id="@+id/pieChartFragment"
         android:name="com.main.netwallet.graph.PieChartFragment"
         android:label="PieChartFragment" />
+    <fragment
+        android:id="@+id/setMonthlyFragment"
+        android:name="com.main.netwallet.monthlyTransaction.SetMonthlyFragment"
+        android:label="fragment_set_monthly"
+        tools:layout="@layout/fragment_set_monthly" />
 </navigation>

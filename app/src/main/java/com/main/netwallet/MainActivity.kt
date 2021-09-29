@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.ActivityInfo
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -36,6 +37,8 @@ import com.main.netwallet.addTransaction.AddTransactionFragment
 import com.main.netwallet.database.NetWalletDatabase
 import com.main.netwallet.databinding.FragmentReminderBinding
 import com.main.netwallet.initialSetting.AddNewAccountFragment
+import com.main.netwallet.monthlyTransaction.SetMonthlyFragmentViewModel
+import com.main.netwallet.monthlyTransaction.SetMonthlyFragmentViewModelProvider
 import com.main.netwallet.notif.AlarmBroadcastReceiver
 import com.main.netwallet.reminder.ReminderFragementViewModel
 import com.main.netwallet.reminder.ReminderFragementViewModelFactory
@@ -98,8 +101,10 @@ class MainActivity : AppCompatActivity() {
 //        val dateFormat = SimpleDateFormat("dd MM yyyy")
 //        val mDate : Date = dateFormat.parse(todayDate)
 //        val dateInMili = mDate.time
-//        val viewModelProvider = ReminderFragementViewModelFactory(dataSource, application, getEmail.toString(), dateInMili)
+//        val viewModelProvider = ReminderFragementViewModelFactory(dataSource, application, getEmail.toString(), 1631773500000)
 //        val viewModel = ViewModelProvider(this, viewModelProvider).get(ReminderFragementViewModel::class.java)
+//
+//        Log.e("Email Date", "${getEmail.toString()} ${dateInMili.toString()}")
 //
 //        viewModel.getReminderDate.observe(this, Observer { list->
 //           list?.let {
@@ -118,10 +123,10 @@ class MainActivity : AppCompatActivity() {
 //                       if (!toNotifFragment.equals("NotifFragment") && !goToReminder.equals("GoToReminderFragment")){
 //                           notif("You Have Pending Transaction", list.get(0).getReminderDetails)
 //                       }
+//                   }
 //                       Log.e("Notif", getReminderDate.toString())
 //                       Log.e("Notif", todayDate)
 //                       Log.e("Notif", compare.toString())
-//                   }
 //               }
 //               }
 //           }
@@ -143,6 +148,12 @@ class MainActivity : AppCompatActivity() {
 
         Log.e("Activity", "Main Activity")
         Log.e("toReminder", intent.getStringExtra("toReminder").toString())
+
+        val getActivity : ActivityInfo = packageManager.getActivityInfo(this.componentName, 0)
+
+        Log.e("Current Activity", getActivity.toString())
+
+        setMonthly()
 
 
     }
@@ -176,9 +187,9 @@ class MainActivity : AppCompatActivity() {
 
         val intent = Intent(this, MainActivity::class.java)
             .putExtra("toNotifFragment", "NotifFragment")
-            .apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            }
+//            .apply {
+//                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+//            }
         val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
 
         var notifBuilder = NotificationCompat.Builder(this, "CHANNEL_ID")
@@ -233,16 +244,16 @@ class MainActivity : AppCompatActivity() {
         val viewModel =
             ViewModelProvider(this, viewModelProvider).get(ReminderFragementViewModel::class.java)
 
-        val calendar: Calendar = Calendar.getInstance().apply {
-            timeInMillis = System.currentTimeMillis()
-            set(Calendar.HOUR_OF_DAY, 14)
-            set(Calendar.MINUTE, 25)
-        }
-
-        val alarmManager =
-            applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(this, AlarmBroadcastReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
+//        val calendar: Calendar = Calendar.getInstance().apply {
+//            timeInMillis = System.currentTimeMillis()
+//            set(Calendar.HOUR_OF_DAY, 14)
+//            set(Calendar.MINUTE, 25)
+//        }
+//
+//        val alarmManager =
+//            applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+//        val intent = Intent(this, AlarmBroadcastReceiver::class.java)
+//        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
 //        alarmManager.setExact(
 //            AlarmManager.RTC_WAKEUP,
 //            1631773500000,
@@ -266,6 +277,40 @@ class MainActivity : AppCompatActivity() {
                         pendingIntent
                     )
                     Log.e("Clock", list.get(0).getReminderDate.toString())
+                }
+            }
+        })
+    }
+
+    private fun setMonthly(){
+        val getEmail = sharedPreferenceEmail.getString("email_preference", null)
+        val application = requireNotNull(this).application
+        val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
+        val viewModelProvider = SetMonthlyFragmentViewModelProvider(dataSource,application,getEmail.toString())
+        val viewModel = ViewModelProvider(this,viewModelProvider).get(SetMonthlyFragmentViewModel::class.java)
+        val alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        viewModel.scheduledAt.observe(this, Observer { list->
+            list?.let {
+                if (list.size >=1){
+                    for (i in 0.. list.size-1){
+                        val calendar = Calendar.getInstance()
+                        val date = list.get(i).scheduledAt.toString()
+                        val month = calendar.get(Calendar.MONTH)
+                        val year = calendar.get(Calendar.YEAR)
+                        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+                        val minute = calendar.get(Calendar.MINUTE)
+                        val second = Random().nextInt(60).toString()
+                        val scheduled = "$date $month $year $hour:$minute:$second"
+                        val dateFormat = SimpleDateFormat("dd MM yyyy HH:mm:ss")
+                        val toMil = dateFormat.parse(scheduled)
+                        val resToMil = toMil.time
+                        val milToDate = SimpleDateFormat("dd MM yyyy HH:mm:ss").format(resToMil)
+
+                        Log.i("Date in mill $i", resToMil.toString())
+                        Log.i("Mill to date $i", milToDate.toString())
+
+                    }
                 }
             }
         })

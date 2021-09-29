@@ -138,4 +138,16 @@ interface NetWalletDatabaseDao {
     //Query to get sum last 30 days expenses
     @Query("Select id, email, Sum(value) as value, transaction_type, details, wallet_type, currency, date, bank_account_name from transaction_history where wallet_type=:walletType AND email =:email AND date BETWEEN :from AND :to AND transaction_type ='Expenses' group by transaction_type")
     suspend fun sumLastThirtyDaysExpenses(walletType: String, email:String, from: Long, to: Long) : List<ExpensesTransaction>
+
+    //Query to add monthly transaction
+    @Query("Insert into set_monthly_transaction (email, value, transaction_type, details, wallet_type, currency, bank_account_name, scheduled_at) Values (:email,:value,:transactionType,:details,:walletType,:currency,:bank_account_name,:scheduledAt)")
+    suspend fun setMonthlyTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, bank_account_name: String, scheduledAt: Long)
+
+    //Query to get date scheduled_at from set_montly_transaction
+    @Query("Select scheduled_at from set_monthly_transaction where email = :email")
+    fun getScheduledAt(email: String) : LiveData<List<ScheduledAt>>
+
+    //Query to get all data from set_monthly_transaction
+    @Query("Select id, email, value, transaction_type, details, wallet_type, currency, bank_account_name from set_monthly_transaction where email = :email")
+    fun getMonthlyTransaction(email: String) : LiveData<List<GetMonthlyData>>
 }

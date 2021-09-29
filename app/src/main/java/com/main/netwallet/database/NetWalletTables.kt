@@ -99,6 +99,36 @@ import java.util.*
         val status: String?
     )
 
+    @Entity(tableName = "set_monthly_transaction")
+    data class SetMonthlyTransaction(
+        @PrimaryKey(autoGenerate = true)
+        var id: Int,
+
+        @ColumnInfo(name = "email")
+        val email: String?,
+
+        @ColumnInfo(name = "value")
+        val value: String?,
+
+        @ColumnInfo(name = "transaction_type")
+        val transactionType: String?,
+
+        @ColumnInfo(name = "details")
+        val details: String?,
+
+        @ColumnInfo(name = "wallet_type")
+        val walletType: String?,
+
+        @ColumnInfo(name = "currency")
+        val currency: String?,
+
+        @ColumnInfo(name = "bank_account_name")
+        val bankAccountName: String?,
+
+        @ColumnInfo(name = "scheduled_at")
+        val scheduledAt: Long
+    )
+
     data class SumTransaction(
         @ColumnInfo(name = "value")
         val value: Long?,
@@ -164,4 +194,36 @@ import java.util.*
 
         @ColumnInfo(name = "date")
         val date: Long?
+    )
+
+    data class ScheduledAt(
+        @ColumnInfo(name = "scheduled_at")
+        val scheduledAt: Long
+    )
+
+    data class GetMonthlyData(
+        @ColumnInfo(name = "id")
+        val id: Int,
+
+        @ColumnInfo(name = "email")
+        val email: String,
+
+        @ColumnInfo(name = "value")
+        val value: Long,
+
+        @ColumnInfo(name = "transaction_type")
+        val transactionType: String,
+
+        @ColumnInfo(name = "details")
+        val details: String,
+
+        @ColumnInfo(name = "wallet_type")
+        val walletType: String,
+
+        @ColumnInfo(name = "currency")
+        val currency: String,
+
+        @ColumnInfo(name = "bank_account_name")
+        val bankAccountName: String?
+
     )

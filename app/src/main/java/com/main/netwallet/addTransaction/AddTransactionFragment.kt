@@ -95,13 +95,11 @@ class AddTransactionFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
             viewModel.doneShowingToast.observe(viewLifecycleOwner, Observer {
                 if(it == true){
-                    Toast.makeText(context, "Successfully Added Data", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, "Successfully Added Data", Toast.LENGTH_SHORT).show()
                     findNavController().navigate(AddTransactionFragmentDirections.actionAddTransactionFragmentToHomeFragment())
                     viewModel.doneNavigating()
                 }
             })
-
-
         }
         Log.e("Account Wallet", walletTypePreference.toString() + currencyPreference.toString() + bankAccountNamePreference.toString())
         return binding.root

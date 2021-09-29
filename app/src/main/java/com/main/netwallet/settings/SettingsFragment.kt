@@ -24,8 +24,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         val reminder : Preference? = findPreference<Preference>("reminder")
 
+        val setMonthlyTransaction : Preference? = findPreference("setMonthlyTransaction")
+
         reminder?.setOnPreferenceClickListener {
             findNavController().navigate(R.id.reminderFragment)
+            true
+        }
+
+        setMonthlyTransaction?.setOnPreferenceClickListener {
+            findNavController().navigate(R.id.setMonthlyFragment)
             true
         }
     }

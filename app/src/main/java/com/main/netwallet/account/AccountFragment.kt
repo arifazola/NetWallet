@@ -72,7 +72,7 @@ class AccountFragment : Fragment(), AdapterView.OnItemSelectedListener {
 //        destoryWallet()
         val application = requireNotNull(this.activity).application
         val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
-        val email = "afazola@gmail.com"
+//        val email = "afazola@gmail.com"
         val viewModelProvider = AccountViewModelProvider(dataSource, application, getEmail.toString(), etFromSpinner.toString())
         val viewModel = ViewModelProvider(this, viewModelProvider).get(AccountViewModel::class.java)
         binding.account = viewModel
@@ -143,6 +143,7 @@ class AccountFragment : Fragment(), AdapterView.OnItemSelectedListener {
             }
         }
         Log.e("Account Wallet OnClick", walletTypePreference.toString() + currencyPreference.toString() + bankAccountNamePreference.toString())
+        Log.e("Current Activity", activity.toString())
 
         return binding.root
     }
