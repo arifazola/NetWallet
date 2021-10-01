@@ -34,6 +34,7 @@ class AddNewAccountFragmentViewModel(datasource : NetWalletDatabaseDao, applicat
     fun firstTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: Long, bankDetails: String){
         viewModelScope.launch {
             insertFirstTransaction(email, value, transactionType, details, walletType, currency, date, bankDetails)
+            _doneNavigating.value = true
         }
     }
 

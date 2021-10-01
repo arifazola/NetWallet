@@ -211,11 +211,16 @@ class HomeFragment : Fragment() {
 //
         val chart : LineChart = binding.chart
         val expenses = ArrayList<Entry>()
+        val dateExpenses = ArrayList<String>()
         viewModel.todayExpenses.observe(viewLifecycleOwner, Observer { list ->
             list?.let {
                 for (i in 0..list.size - 1) {
                     expenses.add(Entry(i.toFloat(), list.get(0)!!.value!!.toFloat()))
                     Log.e("Result Expenses $i", list.get(i)!!.value!!.toString())
+                }
+                for(i in 0..list.size - 1){
+                    val dateFormatter : String = SimpleDateFormat("dd MMM").format(Date(list.get(i)!!.date!!))
+                    dateExpenses.add(dateFormatter)
                 }
             }
 //        })
@@ -226,11 +231,16 @@ class HomeFragment : Fragment() {
             expensesLineDataSet.setCircleColor(Color.BLUE)
 
             val income = ArrayList<Entry>()
+            val dateIncome = ArrayList<String>()
             viewModel.todayIncome.observe(viewLifecycleOwner, Observer { list ->
                 list?.let {
                     for (i in 0..list.size - 1) {
                         income.add(Entry(i.toFloat(), list.get(i)!!.value!!.toFloat()))
                         Log.e("Result Income $i", list.get(i)!!.value!!.toString())
+                    }
+                    for(i in 0..list.size - 1){
+                        val dateFormatter : String = SimpleDateFormat("dd MMM").format(Date(list.get(i)!!.date!!))
+                        dateIncome.add(dateFormatter)
                     }
                 }
 //            })
@@ -251,6 +261,9 @@ class HomeFragment : Fragment() {
                 chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
                 chart.data = LineData(expensesLineDataSet, incomeLineDataSet)
                 chart.animateXY(100, 500)
+
+                val date = AxisDateFormatter(dateExpenses.toArray(arrayOfNulls<String>(dateExpenses.size)))
+                chart.xAxis.valueFormatter = date
             })
         })
 

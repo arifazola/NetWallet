@@ -39,6 +39,12 @@ class SetMonthlyFragmentViewModel(datasource: NetWalletDatabaseDao, application:
         }
     }
 
+    fun delete(id: Int){
+       viewModelScope.launch {
+           deleteMonthly(id)
+       }
+    }
+
     private suspend fun insertAddTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, date: Long, bankDetails: String){
         database.addTransaction(email, value, transactionType, details, walletType, currency, date, bankDetails)
     }
@@ -47,6 +53,10 @@ class SetMonthlyFragmentViewModel(datasource: NetWalletDatabaseDao, application:
         database.setMonthlyTransaction(email, value, transactionType, details, walletType, currency, bankDetails,scheduledAt)
         _doneShowingToast.value = true
         _doneNavigating.value = true
+    }
+
+    private suspend fun deleteMonthly(id: Int){
+        database.deleteReminder(id)
     }
 
     fun resetProps(){

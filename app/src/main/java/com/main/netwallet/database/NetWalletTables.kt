@@ -197,6 +197,30 @@ import java.util.*
     )
 
     data class ScheduledAt(
+        @ColumnInfo(name = "id")
+        val id: Int,
+
+        @ColumnInfo(name = "email")
+        val email: String,
+
+        @ColumnInfo(name = "value")
+        val value: Long,
+
+        @ColumnInfo(name = "transaction_type")
+        val transactionType: String,
+
+        @ColumnInfo(name = "details")
+        val details: String,
+
+        @ColumnInfo(name = "wallet_type")
+        val walletType: String,
+
+        @ColumnInfo(name = "currency")
+        val currency: String,
+
+        @ColumnInfo(name = "bank_account_name")
+        val bankAccountName: String?,
+
         @ColumnInfo(name = "scheduled_at")
         val scheduledAt: Long
     )

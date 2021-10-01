@@ -144,10 +144,13 @@ interface NetWalletDatabaseDao {
     suspend fun setMonthlyTransaction(email: String, value: Long, transactionType: String, details: String, walletType: String, currency: String, bank_account_name: String, scheduledAt: Long)
 
     //Query to get date scheduled_at from set_montly_transaction
-    @Query("Select scheduled_at from set_monthly_transaction where email = :email")
+    @Query("Select id, email, value, transaction_type, details, wallet_type, currency, bank_account_name, scheduled_at from set_monthly_transaction where email = :email")
     fun getScheduledAt(email: String) : LiveData<List<ScheduledAt>>
 
     //Query to get all data from set_monthly_transaction
     @Query("Select id, email, value, transaction_type, details, wallet_type, currency, bank_account_name from set_monthly_transaction where email = :email")
     fun getMonthlyTransaction(email: String) : LiveData<List<GetMonthlyData>>
+
+    @Query("Delete from set_monthly_transaction where id=:id")
+    suspend fun deleteReminder(id: Int)
 }

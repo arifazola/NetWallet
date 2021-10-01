@@ -112,8 +112,8 @@ class HomeFragmentViewModel(dataSource: NetWalletDatabaseDao, application: Appli
 
     fun resultLastThirtyDays(){
         viewModelScope.launch {
-            _lastThirtyDaysExpenses.value = funcLastSevenDaysExpenses(from, to!!)!!
-            _lastThirtyDaysIncome.value = funcLastSevenDaysIncome(from, to!!)!!
+            _lastThirtyDaysExpenses.value = funcLastThirtyDaysExpenses(from, to!!)!!
+            _lastThirtyDaysIncome.value = funcLastThirtyDaysIncome(from, to!!)!!
         }
     }
 

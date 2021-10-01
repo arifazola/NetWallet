@@ -155,7 +155,7 @@ class AddNewAccountFragment : Fragment() , AdapterView.OnItemSelectedListener{
 //                viewModel.updateHasInitialized(true)
                 viewModel.doneNavigating.observe(viewLifecycleOwner, Observer {
                     if (it == true) {
-                        findNavController().navigate(AddNewAccountFragmentDirections.actionAddNewAccountFragmentToAccountFragment())
+                        findNavController().navigate(R.id.homeFragment)
                         viewModel.doneNavigating()
                     }
                 })

@@ -59,6 +59,9 @@ class GraphViewModel(dataSource: NetWalletDatabaseDao, application: Application,
     val sumlastThirtyDaysIncome : LiveData<List<IncomeTransaction?>?>
         get() = _sumlastThirtyDaysIncome
 
+    init {
+        Log.e("Email Param View", emailParam)
+    }
 
     suspend fun funcLastSevenDaysExpenses(from: Long, to: Long) : List<ExpensesTransaction?>{
         val res = database.getLastSevenDaysExpensesTransaction(walletParam, emailParam, from, to)
@@ -73,13 +76,6 @@ class GraphViewModel(dataSource: NetWalletDatabaseDao, application: Application,
 
         return getVal
     }
-
-//    suspend fun sumLastSevenDaysExpenses(from: Long, to: Long) : List<ExpensesTransaction?>{
-//        val res = database.sumLastSevenDaysExpenses(walletParam, emailParam, from, to)
-//        val getVal = res
-//
-//        return getVal
-//    }
 
     suspend fun sumTodayIncome(from: Long) : List<IncomeTransaction>{
         val res = database.sumTodayIncome(walletParam, emailParam, from)
@@ -175,4 +171,6 @@ class GraphViewModel(dataSource: NetWalletDatabaseDao, application: Application,
         _lastThirtyDaysIncome.value = null
         _sumlastThirtyDaysIncome.value = null
     }
+
+
 }

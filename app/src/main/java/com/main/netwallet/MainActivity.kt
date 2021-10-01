@@ -244,22 +244,6 @@ class MainActivity : AppCompatActivity() {
         val viewModel =
             ViewModelProvider(this, viewModelProvider).get(ReminderFragementViewModel::class.java)
 
-//        val calendar: Calendar = Calendar.getInstance().apply {
-//            timeInMillis = System.currentTimeMillis()
-//            set(Calendar.HOUR_OF_DAY, 14)
-//            set(Calendar.MINUTE, 25)
-//        }
-//
-//        val alarmManager =
-//            applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-//        val intent = Intent(this, AlarmBroadcastReceiver::class.java)
-//        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
-//        alarmManager.setExact(
-//            AlarmManager.RTC_WAKEUP,
-//            1631773500000,
-//            pendingIntent
-//        )
-
         viewModel.getReminderDate.observe(this, Observer { list ->
             list?.let {
                 val dataSize = list.size
@@ -296,7 +280,7 @@ class MainActivity : AppCompatActivity() {
                     for (i in 0.. list.size-1){
                         val calendar = Calendar.getInstance()
                         val date = list.get(i).scheduledAt.toString()
-                        val month = calendar.get(Calendar.MONTH)
+                        val month = SimpleDateFormat("MM").format(calendar.time)
                         val year = calendar.get(Calendar.YEAR)
                         val hour = calendar.get(Calendar.HOUR_OF_DAY)
                         val minute = calendar.get(Calendar.MINUTE)
@@ -305,7 +289,23 @@ class MainActivity : AppCompatActivity() {
                         val dateFormat = SimpleDateFormat("dd MM yyyy HH:mm:ss")
                         val toMil = dateFormat.parse(scheduled)
                         val resToMil = toMil.time
-                        val milToDate = SimpleDateFormat("dd MM yyyy HH:mm:ss").format(resToMil)
+                        val milToDate = SimpleDateFormat("dd MM yyyy").format(resToMil)
+                        val today = SimpleDateFormat("dd MM yyyy").format(Date())
+                        val todayDateFormat = SimpleDateFormat("dd MM yyyy")
+                        val todayParse = todayDateFormat.parse(today)
+                        val todayToMil = todayParse.time
+
+                        if(today.equals(milToDate)){
+                            viewModel.addTransaction(getEmail.toString(), list.get(i).value, list.get(i).transactionType, list.get(i).details, list.get(i).walletType, list.get(i).currency, todayToMil, list.get(i).bankAccountName!!)
+                            viewModel.delete(list.get(i).id)
+//                            Log.i("Res","Equal")
+//                            Log.i("Res", today.toString())
+//                            Log.i("Res", milToDate.toString())
+                        }else{
+                            Log.i("Res","Not equal")
+                            Log.i("Res", today.toString())
+                            Log.i("Res", milToDate.toString())
+                        }
 
                         Log.i("Date in mill $i", resToMil.toString())
                         Log.i("Mill to date $i", milToDate.toString())

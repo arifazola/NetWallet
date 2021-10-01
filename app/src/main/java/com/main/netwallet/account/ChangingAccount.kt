@@ -61,13 +61,13 @@ class ChangingAccount : AppCompatActivity() {
         }else {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
-            this.finish()
+//            this.finish()
         }
 
         Log.e("Activity", "Changing Account")
     }
 
-    private fun switchAccount(walletType: String, currency: String, bankAccountName: String){
+    private fun switchAccount(walletType: String, currency: String, bankAccountName: String?){
         val editor : SharedPreferences.Editor = sharedPreferencesAccountWallet.edit()
         editor.putString("wallet_type", walletType)
         editor.putString("currency", currency)

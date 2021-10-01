@@ -89,7 +89,7 @@ class GraphFragment : Fragment(){
         today()
 
         tvSeeFullTransaction.setOnClickListener {
-            findNavController().navigate(R.id.graphFragment)
+            findNavController().navigate(R.id.homeFragment)
         }
 
         addTransaction.setOnClickListener {
@@ -164,6 +164,7 @@ class GraphFragment : Fragment(){
         val currencyPreference = sharedPreferencesAccountWallet.getString("currency", null)
         val bankAccountNamePreference =
             sharedPreferencesAccountWallet.getString("bank_account_name", null)
+        Log.e("Check Account","$getEmail, $getWalletType, $currencyPreference, $bankAccountNamePreference")
         val application = requireNotNull(this.activity).application
         val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
         val viewModelFactory = HomeFragmentViewModelFactory(
