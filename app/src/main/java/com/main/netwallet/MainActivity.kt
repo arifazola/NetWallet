@@ -33,6 +33,8 @@ import androidx.work.WorkManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.main.netwallet.addTransaction.AddTransactionFragment
 import com.main.netwallet.database.NetWalletDatabase
 import com.main.netwallet.databinding.FragmentReminderBinding
@@ -42,19 +44,25 @@ import com.main.netwallet.monthlyTransaction.SetMonthlyFragmentViewModelProvider
 import com.main.netwallet.notif.AlarmBroadcastReceiver
 import com.main.netwallet.reminder.ReminderFragementViewModel
 import com.main.netwallet.reminder.ReminderFragementViewModelFactory
+import java.lang.reflect.Type
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
 
 
 class MainActivity : AppCompatActivity() {
-    val PREF_KEY_EMAIL = "email preference"
-    lateinit var sharedPreferenceEmail: SharedPreferences
+    private val PREF_KEY_EMAIL = "email preference"
+    private lateinit var sharedPreferenceEmail: SharedPreferences
+    private val PREFS_KEY_NOTIF= "notif details preference"
+    private lateinit var sharedPreferenceNotifDetails: SharedPreferences
     private lateinit var drawerID: DrawerLayout
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val navController = this.findNavController(R.id.navHostFragment)
         val toNotifFragment = intent.getStringExtra("toNotifFragment")
+        sharedPreferenceEmail = getSharedPreferences(PREF_KEY_EMAIL, Context.MODE_PRIVATE)
 
         //add bottomNavigation
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bn_main)
@@ -92,7 +100,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-//        sharedPreferenceEmail = getSharedPreferences(PREF_KEY_EMAIL, Context.MODE_PRIVATE)
+
 //        val getEmail = sharedPreferenceEmail.getString("email_preference", null)
 //        val application = requireNotNull(this).application
 //        val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
@@ -145,6 +153,11 @@ class MainActivity : AppCompatActivity() {
             setAlarm()
         }
 
+        val fromTransactionNotif = intent.getStringExtra("FromTransactionNotif")
+        if(fromTransactionNotif.equals("is_true")){
+            intent.replaceExtras(Bundle())
+        }
+
 
         Log.e("Activity", "Main Activity")
         Log.e("toReminder", intent.getStringExtra("toReminder").toString())
@@ -155,6 +168,31 @@ class MainActivity : AppCompatActivity() {
 
         setMonthly()
 
+//        sharedPreferenceNotifDetails = getSharedPreferences(PREFS_KEY_NOTIF, Context.MODE_PRIVATE)
+//
+//        storeNotifDetails()
+//
+//        val gson = Gson()
+//
+//        val getNotifDetails: String? = sharedPreferenceNotifDetails.getString("notif_details", null)
+//
+//        val type: Type = object : TypeToken<java.util.ArrayList<String?>?>() {}.getType()
+//
+//        val result: String = gson.fromJson(getNotifDetails,type)
+
+//        for (i in 0.. getNotifDetails!!.size -1){
+//            Log.i("NotifDetails", result)
+//        }
+
+        saveArrayList("notif_details")
+
+        for(i in 0.. getArrayList("notif_details")!!.size -1){
+            Log.i("NotifDetails", getArrayList("notif_details")!!.get(i).toString())
+        }
+
+//        Log.i("NotifDetails", getArrayList("notif_details")!!.get(0).toString())
+
+        getPreviousFragment()
 
     }
 
@@ -249,18 +287,27 @@ class MainActivity : AppCompatActivity() {
                 val dataSize = list.size
                 Log.e("size", dataSize.toString())
 
-                if (dataSize >= 1) {
+                for(i in 0.. list.size-1) {
                     val alarmManager =
                         applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
                     val intent = Intent(this, AlarmBroadcastReceiver::class.java)
-                    val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
+                    val pendingIntent = PendingIntent.getBroadcast(this, i, intent, 0)
 
                     alarmManager.setExact(
                         AlarmManager.RTC_WAKEUP,
-                        list.get(0).getReminderDate,
+                        list.get(i).getReminderDate,
                         pendingIntent
                     )
-                    Log.e("Clock", list.get(0).getReminderDate.toString())
+                    Log.e("Clock", list.get(i).getReminderDate.toString())
+
+                    if(dateInMili > list.get(i).getReminderDate){
+                        val alarmManager =
+                            applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                        val intent = Intent(this, AlarmBroadcastReceiver::class.java)
+                        val pendingIntent = PendingIntent.getBroadcast(this, i, intent, 0)
+
+                        alarmManager.cancel(pendingIntent)
+                    }
                 }
             }
         })
@@ -314,5 +361,113 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+//    fun storeNotifDetails(){
+
+//        val editor: SharedPreferences.Editor = sharedPreferenceNotifDetails.edit()
+//        val gson = Gson()
+//        val list: ArrayList<String> = arrayListOf<String>("Hahaha", "Hehehe")
+//        val json = gson.toJson(list)
+//        editor.putString("notif_details", json)
+//        editor.apply()
+//        sharedPreferenceEmail = getSharedPreferences(PREF_KEY_EMAIL, Context.MODE_PRIVATE)
+//        val getEmail = sharedPreferenceEmail.getString("email_preference", null)
+//        sharedPreferenceNotifDetails = getSharedPreferences(PREFS_KEY_NOTIF, Context.MODE_PRIVATE)
+//        val application = requireNotNull(this).application
+//        val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
+//        val todayDate: String =
+//            SimpleDateFormat("dd MM yyyy 13:25:00", Locale.getDefault()).format(Date())
+//        val dateFormat = SimpleDateFormat("dd MM yyyy HH:mm:ss")
+//        val mDate: Date = dateFormat.parse(todayDate)
+//        val dateInMili = mDate.time
+//        val viewModelProvider = ReminderFragementViewModelFactory(
+//            dataSource,
+//            application,
+//            getEmail.toString(),
+//            dateInMili
+//        )
+//        val viewModel =
+//            ViewModelProvider(this, viewModelProvider).get(ReminderFragementViewModel::class.java)
+
+//        var listValue: String? = null
+//        val listDetails = mutableSetOf<String>("Hahaha", "Hehehe")
+
+//        listValue = list.get(i).getReminderDetails
+//        listDetails.add("Hahaha")
+//        listDetails.add("Hehehe")
+
+
+
+//        viewModel.getReminderDate.observe(this, Observer { list->
+//            list?.let {
+//                var listValue: String? = null
+//                val listDetails = mutableSetOf<String>()
+//                for(i in 0.. list.size-1){
+//                    listValue = list.get(i).getReminderDetails
+//                    listDetails.add(listValue)
+//                }
+//                val listDetails = HashSet<String>()
+//                listDetails.add("Hahaha")
+//                val editor : SharedPreferences.Editor = sharedPreferenceNotifDetails.edit()
+//                editor.putStringSet("notif_details", listDetails)
+//                editor.apply()
+//            }
+//        })
+//    }
+
+    fun saveArrayList(key: String?) {
+        sharedPreferenceEmail = getSharedPreferences(PREF_KEY_EMAIL, Context.MODE_PRIVATE)
+        val getEmail = sharedPreferenceEmail.getString("email_preference", null)
+        sharedPreferenceNotifDetails = getSharedPreferences(PREFS_KEY_NOTIF, Context.MODE_PRIVATE)
+        val application = requireNotNull(this).application
+        val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
+        val todayDate: String =
+            SimpleDateFormat("dd MM yyyy 13:25:00", Locale.getDefault()).format(Date())
+        val dateFormat = SimpleDateFormat("dd MM yyyy HH:mm:ss")
+        val mDate: Date = dateFormat.parse(todayDate)
+        val dateInMili = mDate.time
+        val viewModelProvider = ReminderFragementViewModelFactory(
+            dataSource,
+            application,
+            getEmail.toString(),
+            dateInMili
+        )
+        val viewModel =
+            ViewModelProvider(this, viewModelProvider).get(ReminderFragementViewModel::class.java)
+        viewModel.getReminderDate.observe(this, Observer { list->
+            list?.let {
+                var listValue: String? = null
+                val listDetails = arrayListOf<String>()
+                for(i in 0.. list.size-1){
+                    listValue = list.get(i).getReminderDetails
+                    listDetails.add(listValue)
+                }
+                sharedPreferenceNotifDetails = getSharedPreferences(PREFS_KEY_NOTIF, Context.MODE_PRIVATE)
+                val editor: SharedPreferences.Editor = sharedPreferenceNotifDetails.edit()
+                val gson = Gson()
+                val json: String = gson.toJson(listDetails)
+                editor.putString(key, json)
+                editor.apply()
+            }
+        })
+    }
+
+    fun getArrayList(key: String?): java.util.ArrayList<String?>? {
+        sharedPreferenceNotifDetails = getSharedPreferences(PREFS_KEY_NOTIF, Context.MODE_PRIVATE)
+        val gson = Gson()
+        val json: String? = sharedPreferenceNotifDetails.getString(key, null)
+        val type: Type = object : TypeToken<java.util.ArrayList<String?>?>() {}.getType()
+        return gson.fromJson(json, type)
+    }
+
+    fun getPreviousFragment(){
+        val fragmentManager = fragmentManager
+        val count = fragmentManager.backStackEntryCount
+        if(count >=1) {
+            val result = fragmentManager.getBackStackEntryAt(count - 1).name
+            Log.i("Previous Fragment", result)
+        }
+        Log.i("Previous Fragment", count.toString())
     }
 }

@@ -12,6 +12,6 @@ class GetDateViewModel (dataSource: NetWalletDatabaseDao, application: Applicati
 
     val database = dataSource
 
-    val getReminderDate = database.getReminderDate(email, date)
+    val getReminderDate = database.getReminderDate(email)
 
 }

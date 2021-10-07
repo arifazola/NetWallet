@@ -60,7 +60,7 @@ class GraphViewModel(dataSource: NetWalletDatabaseDao, application: Application,
         get() = _sumlastThirtyDaysIncome
 
     init {
-        Log.e("Email Param View", emailParam)
+        Log.e("Email Param View", "$from $to")
     }
 
     suspend fun funcLastSevenDaysExpenses(from: Long, to: Long) : List<ExpensesTransaction?>{

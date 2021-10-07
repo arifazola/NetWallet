@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import com.main.netwallet.R
 import com.main.netwallet.database.NetWalletDatabase
 import com.main.netwallet.databinding.FragmentReminderBinding
@@ -55,10 +56,14 @@ class ReminderFragment : Fragment() {
         val btnSetReminder = binding.btSetReminder
 
         btnSetReminder.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            val hour = calendar.get(Calendar.HOUR_OF_DAY)
+            val minute = calendar.get(Calendar.MINUTE)
+            val second = Random().nextInt(60).toString()
             val reminderDay = binding.etDay.text
             val reminderMonth = binding.etMonth.text
             val reminderYear = binding.etYear.text
-            val date = "$reminderDay $reminderMonth $reminderYear 13:25:00"
+            val date = "$reminderDay $reminderMonth $reminderYear $hour:$minute:$second"
             val dateFormat = SimpleDateFormat("dd MM yyyy HH:mm:ss")
             val mDate : Date = dateFormat.parse(date)
             val convertToMili = mDate.time
@@ -75,6 +80,8 @@ class ReminderFragment : Fragment() {
             viewModel.doneShowingToast.observe(viewLifecycleOwner, Observer{
                 if(it == true){
                     Toast.makeText(context, "You Have Set A Reminder", Toast.LENGTH_LONG).show()
+                    findNavController().navigate(R.id.homeFragment)
+
                 }
             })
         }

@@ -77,5 +77,9 @@
     <string name="set_monthly">Set Monthly Transaction</string>
     <string name="et_date">Scheduled At (Date every Month) </string>
     <string name="btn_set">Set</string>
+    <string name="btn_set_reminder">Set Reminder</string>
+    <string name="dialog">Do you want to cancel this reminder?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>
 

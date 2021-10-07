@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
@@ -19,6 +20,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.github.mikephil.charting.animation.Easing
+import com.github.mikephil.charting.charts.Chart
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Legend
@@ -326,6 +328,9 @@ class HomeFragment : Fragment() {
                     pieChart.setData(pieData)
                     pieChart.invalidate()
                     Log.e("dataSize", dataSize.toString())
+                    for(i in 0..pieEntries.size - 1){
+                        Log.i("PieEntries", pieEntries.get(i).value.toString())
+                    }
 //
                 }else if(dataSize == 1 && list.get(0)?.transactionType == "Expenses") {
                     typeAmountMap["Expenses"] = list.get(0)!!.value!!.toInt()
@@ -361,6 +366,9 @@ class HomeFragment : Fragment() {
                     pieChart.setData(pieData)
                     pieChart.invalidate()
                     Log.e("dataSize", dataSize.toString())
+                    for(i in 0..pieEntries.size - 1){
+                        Log.i("PieEntries", pieEntries.indexOf(i).toString())
+                    }
 
                 }else if(dataSize == 2){
                     typeAmountMap["Income"] = list.get(1)!!.value!!.toInt()
@@ -399,46 +407,54 @@ class HomeFragment : Fragment() {
                     pieChart.setData(pieData)
                     pieChart.invalidate()
                     Log.e("dataSize", dataSize.toString())
-                }
+                    for(i in 0..pieEntries.size - 1){
+                        Log.i("PieEntries", pieEntries.get(i).value.toString())
+                    }
+                }else if(dataSize == 0){
+                    pieEntries.clear()
 
-//                for (type in typeAmountMap.keys) {
-//                    pieEntries.add(PieEntry(typeAmountMap[type]!!.toFloat(), type))
-//                }
+                    val colors: ArrayList<Int> = ArrayList()
+                    colors.add(Color.WHITE)
+
+                    for (type in typeAmountMap.keys) {
+                        pieEntries.add(PieEntry(typeAmountMap[type]!!.toFloat(), type))
+                    }
+
+                    val pieDataSet = PieDataSet(pieEntries, label)
+                    //setting text size of the value
+                    //setting text size of the value
+                    pieDataSet.valueTextSize = 14f
+                    //providing color list for coloring different entries
+                    //providing color list for coloring different entries
+                    pieDataSet.colors = colors
+                    //grouping the data set from entry to chart
+                    //grouping the data set from entry to chart
+                    val pieData = PieData(pieDataSet)
+                    //showing the value of the entries, default true if not set
+                    //showing the value of the entries, default true if not set
+                    pieData.setValueFormatter(PercentFormatter(pieChart))
+                    pieData.setDrawValues(true)
+
+//                    pieChart.setUsePercentValues(true)
+//                    pieChart.description.isEnabled = false
+//                    pieChart.dragDecelerationFrictionCoef = 0.9F
+//                    pieChart.rotationAngle = 0F
+//                    pieChart.animateY(1400, Easing.EaseInOutQuad)
+//                    pieChart.setHoleColor(Color.WHITE)
 //
-//                val pieDataSet = PieDataSet(pieEntries, label)
-//                //setting text size of the value
-//                //setting text size of the value
-//                pieDataSet.valueTextSize = 14f
-//                //providing color list for coloring different entries
-//                //providing color list for coloring different entries
-//                pieDataSet.colors = colors
-//                //grouping the data set from entry to chart
-//                //grouping the data set from entry to chart
-//                val pieData = PieData(pieDataSet)
-//                //showing the value of the entries, default true if not set
-//                //showing the value of the entries, default true if not set
-//                pieData.setValueFormatter(PercentFormatter(pieChart))
-//                pieData.setDrawValues(true)
-//
-//                pieChart.setUsePercentValues(true)
-//                pieChart.description.isEnabled = false
-//                pieChart.dragDecelerationFrictionCoef = 0.9F
-//                pieChart.rotationAngle = 0F
-//                pieChart.animateY(1400, Easing.EaseInOutQuad)
-//                pieChart.setHoleColor(Color.WHITE)
-//
-//                pieChart.setData(pieData)
-//                pieChart.invalidate()
+//                    pieChart.setData(pieData)
+//                    pieChart.invalidate()
+                    pieChart.setNoDataText("No Data Available");
+                    val paint: Paint =  pieChart.getPaint(Chart.PAINT_INFO)
+                    paint.textSize = 40f
+                    pieChart.invalidate()
+                    Log.e("dataSize", dataSize.toString())
+                    for(i in 0..pieEntries.size - 1){
+                        Log.i("PieEntries", pieEntries.get(i).value.toString())
+                    }
+                }
             }
         })
-
-
-
-
-
-        viewModel.resetToday()
-        viewModel.resetLastWeek()
-        viewModel.resetThirtyDays()
 
         viewModel.resetToday()
         viewModel.resetLastWeek()
@@ -685,6 +701,41 @@ class HomeFragment : Fragment() {
                     pieChart.invalidate()
                     Log.e("dataSize", dataSize.toString())
 //
+                } else if(dataSize == 0){
+                    typeAmountMap["NoData"] = 0
+
+                    val colors: ArrayList<Int> = ArrayList()
+                    colors.add(Color.WHITE)
+
+                    for (type in typeAmountMap.keys) {
+                        pieEntries.add(PieEntry(typeAmountMap[type]!!.toFloat(), type))
+                    }
+
+                    val pieDataSet = PieDataSet(pieEntries, label)
+                    //setting text size of the value
+                    //setting text size of the value
+                    pieDataSet.valueTextSize = 14f
+                    //providing color list for coloring different entries
+                    //providing color list for coloring different entries
+                    pieDataSet.colors = colors
+                    //grouping the data set from entry to chart
+                    //grouping the data set from entry to chart
+                    val pieData = PieData(pieDataSet)
+                    //showing the value of the entries, default true if not set
+                    //showing the value of the entries, default true if not set
+                    pieData.setValueFormatter(PercentFormatter(pieChart))
+                    pieData.setDrawValues(true)
+
+                    pieChart.setUsePercentValues(true)
+                    pieChart.description.isEnabled = false
+                    pieChart.dragDecelerationFrictionCoef = 0.9F
+                    pieChart.rotationAngle = 0F
+                    pieChart.animateY(1400, Easing.EaseInOutQuad)
+                    pieChart.setHoleColor(Color.WHITE)
+
+                    pieChart.setData(pieData)
+                    pieChart.invalidate()
+                    Log.e("dataSize", dataSize.toString())
                 }
             }
         })
@@ -937,6 +988,41 @@ class HomeFragment : Fragment() {
                     pieChart.invalidate()
                     Log.e("dataSize", dataSize.toString())
 //
+                } else if(dataSize == 0){
+                    typeAmountMap["NoData"] = 0
+
+                    val colors: ArrayList<Int> = ArrayList()
+                    colors.add(Color.WHITE)
+
+                    for (type in typeAmountMap.keys) {
+                        pieEntries.add(PieEntry(typeAmountMap[type]!!.toFloat(), type))
+                    }
+
+                    val pieDataSet = PieDataSet(pieEntries, label)
+                    //setting text size of the value
+                    //setting text size of the value
+                    pieDataSet.valueTextSize = 14f
+                    //providing color list for coloring different entries
+                    //providing color list for coloring different entries
+                    pieDataSet.colors = colors
+                    //grouping the data set from entry to chart
+                    //grouping the data set from entry to chart
+                    val pieData = PieData(pieDataSet)
+                    //showing the value of the entries, default true if not set
+                    //showing the value of the entries, default true if not set
+                    pieData.setValueFormatter(PercentFormatter(pieChart))
+                    pieData.setDrawValues(true)
+
+                    pieChart.setUsePercentValues(true)
+                    pieChart.description.isEnabled = false
+                    pieChart.dragDecelerationFrictionCoef = 0.9F
+                    pieChart.rotationAngle = 0F
+                    pieChart.animateY(1400, Easing.EaseInOutQuad)
+                    pieChart.setHoleColor(Color.WHITE)
+
+                    pieChart.setData(pieData)
+                    pieChart.invalidate()
+                    Log.e("dataSize", dataSize.toString())
                 }
             }
         })

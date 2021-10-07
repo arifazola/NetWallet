@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import com.main.netwallet.addTransaction.AddTransactionFragmentViewModel
 import com.main.netwallet.addTransaction.AddTransactionFragmentViewModelProvider
 import com.main.netwallet.database.NetWalletDatabase
+import com.main.netwallet.database.NetWalletDatabaseDao
 import com.main.netwallet.monthlyTransaction.SetMonthlyFragmentViewModel
 import com.main.netwallet.monthlyTransaction.SetMonthlyFragmentViewModelProvider
 
@@ -54,5 +55,6 @@ fun makeStatusNotification(message: String, context: Context, titleNotif: String
     with(NotificationManagerCompat.from(context)){
         notify(1, notifBuilder)
     }
+
 
 }

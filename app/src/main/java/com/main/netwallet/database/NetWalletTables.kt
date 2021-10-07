@@ -161,6 +161,14 @@ import java.util.*
         val getReminderDetails: String
     )
 
+    data class GetReminderDetails(
+        @ColumnInfo(name = "id")
+        var id: Int?,
+
+        @ColumnInfo(name = "reminder_details")
+        val getReminderDetails: String
+    )
+
     data class IncomeTransaction(
 
         @ColumnInfo(name = "id")

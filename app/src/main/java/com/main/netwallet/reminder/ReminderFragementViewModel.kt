@@ -12,7 +12,7 @@ class ReminderFragementViewModel(dataSource: NetWalletDatabaseDao, application: 
 
     val database = dataSource
 
-    val getReminderDate = database.getReminderDate(email, date)
+    val getReminderDate = database.getReminderDate(email)
 
     val _doneShowingToast = MutableLiveData<Boolean>()
     val doneShowingToast : LiveData<Boolean>

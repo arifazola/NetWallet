@@ -84,12 +84,16 @@ interface NetWalletDatabaseDao {
     suspend fun addReminder(email: String, reminderDate: Long, reminderDetails: String)
 
     //Query to get reminder date
-    @Query("Select reminder_date, reminder_details from reminder_table WHERE email=:email AND reminder_date=:date AND status='active'")
-    fun getReminderDate(email: String, date: Long) : LiveData<List<GetReminderDate>>
+    @Query("Select reminder_date, reminder_details from reminder_table WHERE email=:email AND status='active'")
+    fun getReminderDate(email: String) : LiveData<List<GetReminderDate>>
+
+    //Query to get reminder details on specific date
+    @Query("Select reminder_details, id from reminder_table WHERE email=:email AND status='active' order by reminder_date ASC limit 1")
+    suspend fun getReminderDetails(email: String) : List<GetReminderDetails>
 
     //Query to update reminder
-    @Query("Update reminder_table set status='inactive' Where email=:email")
-    suspend fun updateReminder(email: String)
+    @Query("Update reminder_table set status='inactive' Where email=:email AND id=:id")
+    suspend fun updateReminder(email: String, id: Int)
 
     //Query to get today income transaction
     @Query("Select id, email, Sum(value) as value, transaction_type, details, wallet_type, currency, date, bank_account_name from transaction_history where wallet_type=:walletType AND email =:email AND date=:from AND transaction_type ='Income' group by transaction_type, date")

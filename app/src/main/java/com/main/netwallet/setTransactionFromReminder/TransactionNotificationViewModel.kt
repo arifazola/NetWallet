@@ -1,16 +1,31 @@
 package com.main.netwallet.setTransactionFromReminder
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.main.netwallet.database.GetReminderDetails
 import com.main.netwallet.database.NetWalletDatabaseDao
 import kotlinx.coroutines.launch
 
 class TransactionNotificationViewModel(dataSource : NetWalletDatabaseDao, application: Application) : ViewModel() {
 
     val database = dataSource
+
+    var emailParam = ""
+
+    var dateParam = 0L
+
+//    init {
+//        Log.i("TransactionNotification", "$emailParam, $dateParam")
+//    }
+
+
+    private val _reminderDetails = MutableLiveData<List<GetReminderDetails>>()
+    val reminderDetails : LiveData<List<GetReminderDetails>>
+        get() = _reminderDetails
 
     private val _doneNavigating = MutableLiveData<Boolean>()
     val doneNavigating : LiveData<Boolean>
@@ -33,16 +48,34 @@ class TransactionNotificationViewModel(dataSource : NetWalletDatabaseDao, applic
         database.addTransaction(email, value, transactionType, details, walletType, currency, date, bankDetails)
     }
 
-    fun updateReminder(email:String){
+    fun updateReminder(email:String, id: Int){
         viewModelScope.launch {
-            toUpdate(email)
+            toUpdate(email, id)
             _doneNavigating.value = true
             _doneShowingToast.value = true
         }
     }
 
-    private suspend fun toUpdate(email: String){
-        database.updateReminder(email)
+    suspend fun getReminderDetails(email: String): List<GetReminderDetails>{
+        val res = database.getReminderDetails(email)
+        val getRes = res
+        return getRes
+    }
+
+    fun resultGetReminderDetails(){
+        viewModelScope.launch {
+            _reminderDetails.value = getReminderDetails(emailParam)!!
+            Log.i("TransactionNotification", "$emailParam, $dateParam")
+        }
+    }
+
+    fun setEmailAndDate(email: String, date: Long){
+        emailParam = email
+        dateParam = date
+    }
+
+    private suspend fun toUpdate(email: String, id: Int){
+        database.updateReminder(email, id)
     }
 
     fun doneNavigating(){

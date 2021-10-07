@@ -1,6 +1,9 @@
 package com.main.netwallet.setTransactionFromReminder
 
+import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -15,6 +18,7 @@ import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.main.netwallet.R
@@ -26,6 +30,7 @@ import com.main.netwallet.databinding.FragmentAddTransactionBinding
 import com.main.netwallet.databinding.FragmentTransactionNotificationBinding
 import androidx.lifecycle.Observer
 import com.main.netwallet.MainActivity
+import java.lang.IllegalStateException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -43,7 +48,7 @@ class TransactionNotificationFragment : Fragment(), AdapterView.OnItemSelectedLi
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    val PREFS_KEY_EMAIL = "email preference"
+    private val PREFS_KEY_EMAIL = "email preference"
     private val PREFS_KEY = "account wallet preference"
     lateinit var sharedPreferencesEmail : SharedPreferences
     lateinit var sharedPreferencesAccountWallet : SharedPreferences
@@ -55,7 +60,8 @@ class TransactionNotificationFragment : Fragment(), AdapterView.OnItemSelectedLi
             param2 = it.getString(ARG_PARAM2)
         }
         val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
-            findNavController().navigate(R.id.homeFragment)
+            val dialog = ShowDialog()
+            dialog.show(requireFragmentManager(),"dialog")
         }
     }
 
@@ -64,6 +70,8 @@ class TransactionNotificationFragment : Fragment(), AdapterView.OnItemSelectedLi
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
+        sharedPreferencesEmail = requireActivity().getSharedPreferences(PREFS_KEY_EMAIL, Context.MODE_PRIVATE)
+        val getEmailPref : String? = sharedPreferencesEmail.getString("email_preference", null)
         val application = requireNotNull(this.activity).application
         val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
         val viewModelProvider = TransactionNotificationViewModelProvider(dataSource, application)
@@ -71,13 +79,19 @@ class TransactionNotificationFragment : Fragment(), AdapterView.OnItemSelectedLi
             TransactionNotificationViewModel::class.java)
         val binding = DataBindingUtil.inflate<FragmentTransactionNotificationBinding>(inflater,R.layout.fragment_transaction_notification, container, false)
         val transactionTypeSpinner : Spinner = binding.transactionTypeSpinner
-        sharedPreferencesEmail = requireActivity().getSharedPreferences(PREFS_KEY_EMAIL, Context.MODE_PRIVATE)
-        val getEmailPref : String? = sharedPreferencesEmail.getString("email_preference", null)
 
         sharedPreferencesAccountWallet = requireActivity().getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
         val walletTypePreference = sharedPreferencesAccountWallet.getString("wallet_type", null)
         val currencyPreference = sharedPreferencesAccountWallet.getString("currency", null)
         val bankAccountNamePreference = sharedPreferencesAccountWallet.getString("bank_account_name", null)
+
+        val date : String = SimpleDateFormat("dd MM yyy HH:mm:ss", Locale.getDefault()).format(Date())
+        val dateConvert = SimpleDateFormat("dd MM yyyy HH:mm:ss")
+        val mDate : Date = dateConvert.parse(date)
+        val dateToMili = mDate.time
+
+        viewModel.setEmailAndDate(getEmailPref.toString(), dateToMili)
+        viewModel.resultGetReminderDetails()
 
         ArrayAdapter.createFromResource(
             this.requireContext(),
@@ -90,6 +104,16 @@ class TransactionNotificationFragment : Fragment(), AdapterView.OnItemSelectedLi
             }
 
         binding.tvCurrentAccount.text = walletTypePreference.toString()
+
+//        binding.etDetailTransaction.text = viewModel.reminderDetails.value.toString()
+        var id: Int? = 0
+
+        viewModel.reminderDetails.observe(viewLifecycleOwner, Observer { list->
+            list?.let {
+                binding.etDetailTransaction.text = list.get(0).getReminderDetails.toString()
+                id = list.get(0).id
+            }
+        })
 
         transactionTypeSpinner.onItemSelectedListener = this
 
@@ -105,12 +129,13 @@ class TransactionNotificationFragment : Fragment(), AdapterView.OnItemSelectedLi
 
 
             viewModel.addTransaction(getEmailPref.toString(), value.toLong(), transactionType, details, walletTypePreference.toString(), currencyPreference.toString(), dateToMili, bankAccountNamePreference.toString())
-            viewModel.updateReminder(getEmailPref.toString())
+            viewModel.updateReminder(getEmailPref.toString(), id!!)
 
             viewModel.doneShowingToast.observe(viewLifecycleOwner, Observer {
                 if(it == true){
                     Toast.makeText(context, "Successfully Added Data", Toast.LENGTH_SHORT).show()
                     val intent = Intent(context, MainActivity::class.java)
+                        .putExtra("FromTransactionNotif", "is_true")
                     startActivity(intent)
                     viewModel.doneNavigating()
 //                    Toast.makeText(context, "Successfully Added Data", Toast.LENGTH_SHORT).show()
@@ -129,6 +154,45 @@ class TransactionNotificationFragment : Fragment(), AdapterView.OnItemSelectedLi
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
 
+    }
+
+    class ShowDialog : DialogFragment(){
+        val PREFS_KEY_EMAIL = "email preference"
+
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            return activity?.let {
+                val sharedPreferencesEmail = requireActivity().getSharedPreferences(PREFS_KEY_EMAIL, Context.MODE_PRIVATE)
+                val getEmailPref : String? = sharedPreferencesEmail.getString("email_preference", null)
+                val builder = AlertDialog.Builder(it)
+                val application = requireNotNull(this.activity).application
+                val dataSource = NetWalletDatabase.getInstance(application).netWalletDatabaseDao
+                val viewModelProvider = TransactionNotificationViewModelProvider(dataSource, application)
+                val viewModel = ViewModelProvider(this, viewModelProvider).get(
+                    TransactionNotificationViewModel::class.java)
+                val date : String = SimpleDateFormat("dd MM yyy HH:mm:ss", Locale.getDefault()).format(Date())
+                val dateConvert = SimpleDateFormat("dd MM yyyy HH:mm:ss")
+                val mDate : Date = dateConvert.parse(date)
+                val dateToMili = mDate.time
+                viewModel.setEmailAndDate(getEmailPref.toString(), dateToMili)
+                viewModel.resultGetReminderDetails()
+                builder.setMessage(R.string.dialog)
+                    .setPositiveButton(R.string.yes, DialogInterface.OnClickListener { dialog, id ->
+                        viewModel.reminderDetails.observe(this, Observer { list->
+                            list?.let {
+                                val id = list.get(0).id
+                                viewModel.updateReminder(getEmailPref.toString(), id!!)
+                            }
+                            val intent = Intent(context, MainActivity::class.java)
+                                .putExtra("FromTransactionNotif", "is_true")
+                            startActivity(intent)
+                        })
+                    })
+                    .setNegativeButton(R.string.no, DialogInterface.OnClickListener { dialog, id ->
+                        Toast.makeText(this.context, "No", Toast.LENGTH_LONG).show()
+                    })
+                builder.create()
+            } ?: throw IllegalStateException("Activity Cannot be null")
+        }
     }
 
 }
